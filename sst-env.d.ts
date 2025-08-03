@@ -5,6 +5,10 @@
 
 declare module "sst" {
   export interface Resource {
+    "Auth": {
+      "id": string
+      "type": "sst.aws.CognitoUserPool"
+    }
     "MyApi": {
       "type": "sst.aws.ApiGatewayV2"
       "url": string
@@ -16,6 +20,11 @@ declare module "sst" {
     "MyWeb": {
       "type": "sst.aws.Nextjs"
       "url": string
+    }
+    "WebClient": {
+      "id": string
+      "secret": string
+      "type": "sst.aws.CognitoUserPoolClient"
     }
   }
 }
