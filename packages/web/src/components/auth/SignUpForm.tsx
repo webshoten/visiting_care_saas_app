@@ -1,13 +1,32 @@
+/**
+ * サインアップフォームコンポーネント
+ *
+ * 機能:
+ * - ユーザー登録フォームの表示とバリデーション
+ * - サインアップ処理の実行
+ * - 認証コード確認画面への遷移
+ *
+ * @param onSuccess サインアップ成功時のコールバック
+ * @param onSwitchToSignIn サインイン画面への遷移コールバック
+ * @param onSwitchToConfirm 認証コード確認画面への遷移コールバック
+ */
+
 "use client";
 
+// React関連のインポート
 import type React from "react";
 import { useState } from "react";
+
+// 認証関連のフックをインポート
 import { useAuth } from "@/contexts/AuthContext";
 
+/**
+ * SignUpFormのプロパティ型定義
+ */
 interface SignUpFormProps {
-  onSuccess?: () => void;
-  onSwitchToSignIn?: () => void;
-  onSwitchToConfirm?: (email: string) => void;
+  onSuccess?: () => void; // サインアップ成功時のコールバック
+  onSwitchToSignIn?: () => void; // サインイン画面への遷移コールバック
+  onSwitchToConfirm?: (email: string) => void; // 認証コード確認画面への遷移コールバック
 }
 
 export const SignUpForm: React.FC<SignUpFormProps> = ({
@@ -15,16 +34,27 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
   onSwitchToSignIn,
   onSwitchToConfirm,
 }) => {
+  // フォームデータの状態管理
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    confirmPassword: "",
-    name: "",
+    email: "", // メールアドレス
+    password: "", // パスワード
+    confirmPassword: "", // パスワード確認
+    name: "", // ユーザー名
   });
+
+  // ローディング状態の管理
   const [loading, setLoading] = useState(false);
+  // エラーメッセージの管理
   const [error, setError] = useState("");
+
+  // 認証コンテキストからサインアップ関数を取得
   const { signUp } = useAuth();
 
+  /**
+   * フォーム入力値の変更を処理するハンドラー
+   *
+   * @param e 入力イベント
+   */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -33,18 +63,31 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
     }));
   };
 
+  /**
+   * フォーム送信を処理するハンドラー
+   *
+   * 処理内容:
+   * 1. フォームのデフォルト動作を防止
+   * 2. バリデーション（パスワード一致、文字数チェック）
+   * 3. サインアップ処理の実行
+   * 4. 成功時は認証コード確認画面に遷移
+   * 5. エラーハンドリングとローディング状態の管理
+   *
+   * @param e フォーム送信イベント
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    // バリデーション
+    // パスワード一致のバリデーション
     if (formData.password !== formData.confirmPassword) {
       setError("パスワードが一致しません");
       setLoading(false);
       return;
     }
 
+    // パスワード文字数のバリデーション
     if (formData.password.length < 8) {
       setError("パスワードは8文字以上である必要があります");
       setLoading(false);
@@ -52,13 +95,17 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
     }
 
     try {
+      // サインアップ処理を実行
       await signUp(formData.email, formData.password, formData.name);
+
+      // フォームデータをリセット
       setFormData({
         email: "",
         password: "",
         confirmPassword: "",
         name: "",
       });
+
       // 認証コード確認画面に遷移
       onSwitchToConfirm?.(formData.email);
     } catch (err: any) {
@@ -68,17 +115,31 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
     }
   };
 
+  /**
+   * サインアップフォームのレンダリング
+   *
+   * 表示内容:
+   * - フォームヘッダー（アカウント作成）
+   * - エラーメッセージ（エラーがある場合）
+   * - 入力フィールド（名前、メール、パスワード、パスワード確認）
+   * - 送信ボタン（ローディング状態対応）
+   * - サインイン画面へのリンク
+   */
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
+      {/* フォームヘッダー */}
       <h2 className="text-2xl font-bold text-center mb-6">アカウント作成</h2>
 
+      {/* エラーメッセージの表示 */}
       {error && (
         <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
           {error}
         </div>
       )}
 
+      {/* サインアップフォーム */}
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* 名前入力フィールド */}
         <div>
           <label
             htmlFor="name"
@@ -98,6 +159,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
           />
         </div>
 
+        {/* メールアドレス入力フィールド */}
         <div>
           <label
             htmlFor="email"
@@ -117,6 +179,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
           />
         </div>
 
+        {/* パスワード入力フィールド */}
         <div>
           <label
             htmlFor="password"
@@ -136,6 +199,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
           />
         </div>
 
+        {/* パスワード確認入力フィールド */}
         <div>
           <label
             htmlFor="confirmPassword"
@@ -155,6 +219,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
           />
         </div>
 
+        {/* 送信ボタン（ローディング状態対応） */}
         <button
           type="submit"
           disabled={loading}
@@ -164,6 +229,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
         </button>
       </form>
 
+      {/* サインイン画面へのリンク */}
       <div className="mt-4 text-center">
         <p className="text-sm text-gray-600">
           既にアカウントをお持ちですか？{" "}

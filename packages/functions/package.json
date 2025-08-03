@@ -4,6 +4,7 @@
   "type": "module",
   "dependencies": {
     "@visiting_app/core": "*",
+    "aws-jwt-verify": "^5.1.0",
     "sst": "*"
   },
   "devDependencies": {

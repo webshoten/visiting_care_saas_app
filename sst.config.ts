@@ -109,27 +109,38 @@ export default $config({
      * - CORS設定（クロスオリジンリクエストの許可）
      * - DynamoDBテーブルとの連携
      * - Lambda関数との統合
+     * - Cognito認証の統合
      */
     const api = new sst.aws.ApiGatewayV2("MyApi", {
       cors: {
         allowMethods: ["GET"], // 許可するHTTPメソッド
         allowOrigins: ["*"], // すべてのオリジンからのアクセスを許可
       },
-      link: [table], // DynamoDBテーブルとの連携
+      link: [table, userPool], // DynamoDBテーブルとUser Poolとの連携
     });
 
-    // APIルートの定義（ルートパスへのGETリクエストをLambda関数に転送）
-    api.route("GET /", "packages/functions/src/api.handler");
-
     /**
-     * Next.js アプリケーション
-     * フロントエンドアプリケーションの設定
-     *
-     * 機能:
-     * - 静的サイトホスティング
-     * - 環境変数の設定
-     * - 他のリソースとの連携
+     * カスタムLambda Authorizer
+     * Cognito認証を使用したAPI認証機能
      */
+    const authorizer = api.addAuthorizer({
+      name: "cognito",
+      lambda: {
+        function: {
+          handler: "packages/functions/src/authorizer.handler",
+          link: [userPool, userPoolClient], // User Poolとの連携
+        },
+        response: "simple", // シンプルレスポンス形式
+      },
+    });
+
+    // APIルートの定義（認証付き）
+    api.route("GET /", "packages/functions/src/api.handler", {
+      auth: {
+        lambda: authorizer.id,
+      },
+    });
+
     new sst.aws.Nextjs("MyWeb", {
       path: "packages/web", // Next.jsアプリケーションのパス
       environment: {
@@ -147,7 +158,8 @@ export default $config({
     return {
       MyApi: api, // API Gateway
       MyTable: table, // DynamoDBテーブル
-      Auth: userPool, // Cognito User Pool
+      userPool: userPool, // Cognito User Pool
+      userPoolClient: userPoolClient, // Cognito User Pool Client
     };
   },
 });
