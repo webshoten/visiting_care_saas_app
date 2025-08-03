@@ -9,9 +9,9 @@ import type { APIGatewayProxyEventV2 } from "aws-lambda";
 
 // JWTトークンの検証器を初期化
 const verifier = CognitoJwtVerifier.create({
-  userPoolId: process?.env?.USER_POOL_ID ?? "",
+  userPoolId: process.env.USER_POOL_ID ?? "",
   tokenUse: "access",
-  clientId: process?.env?.USER_POOL_CLIENT_ID ?? "",
+  clientId: process.env.USER_POOL_CLIENT_ID ?? "",
 });
 
 /**
@@ -22,33 +22,33 @@ const verifier = CognitoJwtVerifier.create({
  */
 export const handler = async (event: APIGatewayProxyEventV2) => {
   try {
-    console.log("Authorizer called with event:", event);
+    console.log("=== Authorizer Debug Start ===");
+    console.log("Authorizer event:", JSON.stringify(event, null, 2));
 
-    // Authorizationヘッダーからトークンを取得
-    const token = event.headers.authorization;
-    console.log("Raw token:", token);
+    // Authorization Headerからトークンを取得
+    const authHeader =
+      event.headers?.authorization || event.headers?.Authorization;
+    console.log("Authorization header:", authHeader);
 
-    if (!token) {
-      console.log("ERROR: Authorization token is missing");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      console.log("ERROR: Authorization header is missing or invalid");
       return {
         isAuthorized: false,
       };
     }
 
-    // Bearerトークンの形式をチェック
-    if (!token.startsWith("Bearer ")) {
-      console.log("ERROR: Invalid token format. Expected Bearer token");
+    const authToken = authHeader.substring(7); // "Bearer "を除去
+    console.log("Auth token from header:", authToken ? "found" : "not found");
+
+    if (!authToken) {
+      console.log("ERROR: Authorization token is missing from header");
       return {
         isAuthorized: false,
       };
     }
-
-    // Bearerプレフィックスを除去してJWTトークンを取得
-    const jwtToken = token.substring(7);
-    console.log("JWT token length:", jwtToken.length);
 
     // JWTトークンを検証
-    const payload = await verifier.verify(jwtToken);
+    const payload = await verifier.verify(authToken);
 
     console.log("Token verified successfully:", {
       sub: payload.sub,
@@ -66,12 +66,13 @@ export const handler = async (event: APIGatewayProxyEventV2) => {
       },
     };
 
-    console.log("Authorizer result:", result);
+    console.log("=== Authorizer Success ===");
+    console.log("Result:", JSON.stringify(result, null, 2));
     return result;
   } catch (error) {
     console.log("=== Authorizer Error ===");
     console.error("Authorization failed:", error);
-    console.error("Error details:", JSON.stringify(error, null, 2));
+   console.error("Error details:", JSON.stringify(error, null, 2));
 
     // 認証失敗時は拒否レスポンスを返却
     return {

@@ -1,22 +1,72 @@
+/**
+ * ナビゲーションコンポーネント
+ * 
+ * 機能:
+ * - 認証状態に応じたナビゲーション表示
+ * - サインイン/サインアウト機能
+ * - レスポンシブデザイン対応
+ */
+
 "use client";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type React from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useToken } from "@/contexts/TokenContext";
 
+/**
+ * ナビゲーションコンポーネント
+ */
 export const Navigation: React.FC = () => {
-  const { user, signOut, loading } = useAuth();
+  const { token, clearToken } = useToken();
   const router = useRouter();
 
+  /**
+   * サインアウト処理
+   * トークンをクリアしてサインインページにリダイレクト
+   */
   const handleSignOut = async () => {
-    await signOut();
+    clearToken();
     router.push("/signin");
   };
 
-  // スケルトンコンポーネント
-  const SkeletonButton = () => (
-    <div className="h-8 w-20 bg-gray-200 rounded-md animate-pulse"></div>
+  /**
+   * 認証済みユーザー用のナビゲーションリンク
+   */
+  const AuthenticatedNav = () => (
+    <>
+      <Link
+        href="/dashboard"
+        className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+      >
+        ダッシュボード
+      </Link>
+      <Link
+        href="/profile"
+        className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+      >
+        プロフィール
+      </Link>
+      <button
+        type="button"
+        onClick={handleSignOut}
+        className="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+      >
+        サインアウト
+      </button>
+    </>
+  );
+
+  /**
+   * 未認証ユーザー用のナビゲーションリンク
+   */
+  const UnauthenticatedNav = () => (
+    <Link
+      href="/signin"
+      className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    >
+      サインイン
+    </Link>
   );
 
   return (
@@ -30,55 +80,14 @@ export const Navigation: React.FC = () => {
 
           {/* ナビゲーションリンク */}
           <div className="flex items-center space-x-4">
-            {loading ? (
-              // ローディング中はスケルトンを表示
-              <>
-                <SkeletonButton />
-                <SkeletonButton />
-                <SkeletonButton />
-                <SkeletonButton />
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/"
-                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  ホーム
-                </Link>
+            <Link
+              href="/"
+              className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+            >
+              ホーム
+            </Link>
 
-                {user ? (
-                  <>
-                    <Link
-                      href="/dashboard"
-                      className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                    >
-                      ダッシュボード
-                    </Link>
-                    <Link
-                      href="/profile"
-                      className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                    >
-                      プロフィール
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={handleSignOut}
-                      className="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-                    >
-                      サインアウト
-                    </button>
-                  </>
-                ) : (
-                  <Link
-                    href="/signin"
-                    className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    サインイン
-                  </Link>
-                )}
-              </>
-            )}
+            {token ? <AuthenticatedNav /> : <UnauthenticatedNav />}
           </div>
         </div>
       </div>

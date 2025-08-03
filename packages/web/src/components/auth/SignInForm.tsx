@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { useEffect, useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useToken } from "@/contexts/TokenContext";
 
 interface SignInFormProps {
   onSuccess?: () => void;
@@ -22,7 +22,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const { signIn } = useAuth();
+  const { setToken } = useToken();
 
   // prefilledEmailが変更された場合にフォームを更新
   useEffect(() => {
@@ -53,7 +53,28 @@ export const SignInForm: React.FC<SignInFormProps> = ({
     setLoading(true);
 
     try {
-      await signIn(formData.email, formData.password);
+      // Cognitoでサインインしてトークンを取得
+      const response = await fetch("/api/auth/signin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "サインインに失敗しました");
+      }
+
+      const { accessToken } = await response.json();
+
+      // トークンを保存
+      setToken(accessToken);
+
       setFormData({
         email: "",
         password: "",

@@ -99,7 +99,21 @@ export default $config({
      * User Pool Client
      * フロントエンドアプリケーション用のクライアント設定
      */
-    const userPoolClient = userPool.addClient("WebClient");
+    const userPoolClient = userPool.addClient("WebClient", {
+      transform: {
+        client(args, opts, name) {
+          args.explicitAuthFlows = [
+            "ALLOW_USER_PASSWORD_AUTH",
+            "ALLOW_REFRESH_TOKEN_AUTH",
+          ];
+          args.supportedIdentityProviders = ["COGNITO"];
+          // トークンの有効期限設定（短命トークン）
+          args.accessTokenValidity = 15; // 15分
+          args.idTokenValidity = 15; // 15分
+          args.refreshTokenValidity = 30; // 30日
+        },
+      },
+    });
 
     /**
      * API Gateway
@@ -112,10 +126,6 @@ export default $config({
      * - Cognito認証の統合
      */
     const api = new sst.aws.ApiGatewayV2("MyApi", {
-      cors: {
-        allowMethods: ["GET"], // 許可するHTTPメソッド
-        allowOrigins: ["*"], // すべてのオリジンからのアクセスを許可
-      },
       link: [table, userPool], // DynamoDBテーブルとUser Poolとの連携
     });
 
@@ -134,7 +144,6 @@ export default $config({
             USER_POOL_CLIENT_ID: $interpolate`${userPoolClient.id}`,
           },
         },
-        response: "simple", // シンプルレスポンス形式
       },
     });
 
