@@ -1,0 +1,34 @@
+{
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "quickfix.biome": "explicit",
+        "source.organizeImports.biome": "explicit"
+    },
+    "typescript.preferences.includePackageJsonAutoImports": "auto",
+    "typescript.suggest.autoImports": true,
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "files.associations": {
+        "*.ts": "typescript",
+        "*.tsx": "typescriptreact"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "biomejs.biome"
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "biomejs.biome"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "biomejs.biome"
+    },
+    "[javascriptreact]": {
+        "editor.defaultFormatter": "biomejs.biome"
+    },
+    "eslint.enable": false,
+    "eslint.validate": [],
+    "eslint.workingDirectories": [],
+    "eslint.options": {
+        "overrideConfigFile": null
+    },
+    "biome.lspBin": "node_modules/.bin/biome"
+}

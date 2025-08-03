@@ -7,6 +7,7 @@
   "scripts": {},
   "devDependencies": {
     "@tsconfig/node22": "^22",
+    "eslint-config-serverless-stack": "^0.69.7",
     "typescript": "^5"
   },
   "dependencies": {
