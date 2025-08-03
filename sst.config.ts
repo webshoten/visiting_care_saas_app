@@ -129,6 +129,10 @@ export default $config({
         function: {
           handler: "packages/functions/src/authorizer.handler",
           link: [userPool, userPoolClient], // User Poolとの連携
+          environment: {
+            USER_POOL_ID: $interpolate`${userPool.id}`,
+            USER_POOL_CLIENT_ID: $interpolate`${userPoolClient.id}`,
+          },
         },
         response: "simple", // シンプルレスポンス形式
       },
@@ -145,8 +149,9 @@ export default $config({
       path: "packages/web", // Next.jsアプリケーションのパス
       environment: {
         // Cognito設定を環境変数として設定
-        NEXT_PUBLIC_AUTH_USER_POOL_ID: userPool.id, // User Pool ID
-        NEXT_PUBLIC_AUTH_USER_POOL_CLIENT_ID: userPoolClient.id, // Client ID
+        NEXT_PUBLIC_AUTH_USER_POOL_ID: $interpolate`${userPool.id}`, // User Pool ID
+        NEXT_PUBLIC_AUTH_USER_POOL_CLIENT_ID: $interpolate`${userPoolClient.id}`, // Client ID
+        NEXT_PUBLIC_API_URL: $interpolate`${api.url}`, // API URL
       },
       link: [api, userPool], // API GatewayとUser Poolとの連携
     });

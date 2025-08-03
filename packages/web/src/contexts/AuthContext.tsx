@@ -118,14 +118,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                     username: currentUser.getUsername(),
                     email: currentUser.getUsername(), // この例ではemailをusernameとして使用
                     name: nameAttr ? nameAttr.getValue() : undefined,
-                    sub: session.getAccessToken().getJwtToken(),
+                    accessToken: session.getAccessToken().getJwtToken(), // アクセストークン
                   });
                 } else {
                   // 属性取得に失敗した場合のフォールバック
                   setUser({
                     username: currentUser.getUsername(),
                     email: currentUser.getUsername(),
-                    sub: session.getAccessToken().getJwtToken(),
+                    accessToken: session.getAccessToken().getJwtToken(), // アクセストークン
                   });
                 }
               });

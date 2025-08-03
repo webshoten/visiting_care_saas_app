@@ -25,7 +25,7 @@ export interface AuthUser {
   username: string; // ユーザー名（メールアドレス）
   email: string; // メールアドレス
   name?: string; // 表示名（オプション）
-  sub: string; // ユーザーの一意識別子
+  accessToken?: string; // アクセストークン（API呼び出し用）
 }
 
 /**

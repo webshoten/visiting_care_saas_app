@@ -5,16 +5,19 @@ import { Example } from "@visiting_app/core/example";
 import { User } from "@visiting_app/core/user";
 import type { Handler } from "aws-lambda";
 
-export const handler: Handler = async (_event) => {
-  console.log(_event);
+export const handler: Handler = async (event) => {
+  console.log("API Handler called with event:", event);
+
   return {
-    // biome-ignore lint/suspicious/noDuplicateObjectKeys: <explanation>
     statusCode: 200,
-    // biome-ignore lint/suspicious/noDuplicateObjectKeys: <explanation>
-    body: `${Example.hello()} : ${JSON.stringify(
-      await User.getUser(docClient, {
-        userId: "1",
-      }),
-    )}.`,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      message: "API is working!",
+      timestamp: new Date().toISOString(),
+      example: Example.hello(),
+      user: await User.getUser(docClient, { userId: "1" }),
+    }),
   };
 };
