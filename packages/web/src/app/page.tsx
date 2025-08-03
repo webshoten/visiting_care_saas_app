@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { AuthPage, AuthStatus, UserProfile } from "@/components/auth";
+import { useEffect, useState } from "react";
+import { AuthStatus, UserProfile } from "@/components/auth";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function Home() {
@@ -21,8 +21,8 @@ export default function Home() {
 
 				// 環境変数からAPIエンドポイントを取得
 				const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
-				
-;				const response = await fetch(apiUrl, {
+
+				const response = await fetch(apiUrl, {
 					headers: {
 						Authorization: `Bearer ${token}`,
 						"Content-Type": "application/json",
@@ -124,12 +124,6 @@ export default function Home() {
 								<pre className="text-sm text-gray-700">{apiResponse}</pre>
 							)}
 						</div>
-					</div>
-
-					{/* 認証コンポーネント */}
-					<div>
-						<h2 className="text-xl font-semibold mb-4">認証</h2>
-						<AuthPage />
 					</div>
 
 					{/* ユーザープロフィール */}
