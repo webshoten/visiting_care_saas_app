@@ -106,6 +106,7 @@ export const ConfirmCodeForm: React.FC<ConfirmCodeFormProps> = ({
             id="code"
             name="code"
             value={code}
+            disabled={success !== ""}
             onChange={handleCodeChange}
             required
             maxLength={6}
@@ -119,7 +120,7 @@ export const ConfirmCodeForm: React.FC<ConfirmCodeFormProps> = ({
 
         <button
           type="submit"
-          disabled={loading || code.length !== 6}
+          disabled={loading || success !== "" || code.length !== 6}
           className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? "確認中..." : "認証コードを確認"}
@@ -130,7 +131,7 @@ export const ConfirmCodeForm: React.FC<ConfirmCodeFormProps> = ({
         <button
           type="button"
           onClick={handleResendCode}
-          disabled={resendLoading}
+          disabled={resendLoading || success !== ""}
           className="w-full text-blue-600 hover:text-blue-800 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {resendLoading ? "送信中..." : "認証コードを再送信"}

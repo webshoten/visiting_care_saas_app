@@ -9,7 +9,7 @@ export const AuthStatus: React.FC = () => {
   if (loading) {
     return (
       <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
-        <p className="text-blue-700">認証状態を確認中...</p>
+        <p className="text-gray-900">認証状態を確認中...</p>
       </div>
     );
   }
@@ -17,7 +17,7 @@ export const AuthStatus: React.FC = () => {
   if (user) {
     return (
       <div className="p-4 bg-green-50 border border-green-200 rounded-md">
-        <p className="text-green-700">
+        <p className="text-gray-900">
           認証済み: {user.name || user.username} ({user.email})
         </p>
       </div>
@@ -26,7 +26,7 @@ export const AuthStatus: React.FC = () => {
 
   return (
     <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-      <p className="text-yellow-700">未認証</p>
+      <p className="text-gray-900">未認証</p>
     </div>
   );
 };
