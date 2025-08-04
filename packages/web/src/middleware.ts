@@ -7,48 +7,27 @@
  * - 未認証ユーザーのリダイレクト
  */
 
-import { CognitoJwtVerifier } from "aws-jwt-verify";
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 /**
- * 認証不要のパス
- */
-const PUBLIC_PATHS = ["/signin"] as const;
-
-/**
- * JWTトークンの検証器を初期化
- */
-const verifier = CognitoJwtVerifier.create({
-  userPoolId: process.env.NEXT_PUBLIC_AUTH_USER_POOL_ID ?? "",
-  tokenUse: "access",
-  clientId: process.env.NEXT_PUBLIC_AUTH_USER_POOL_CLIENT_ID ?? "",
-});
-
-/**
- * パスが認証不要かどうかをチェック
+ * 認証不要のパスかどうかを判定する関数
  *
  * @param pathname パス名
- * @returns 認証不要の場合true
+ * @returns 認証不要の場合はtrue
  */
 const isPublicPath = (pathname: string): boolean => {
-  return PUBLIC_PATHS.includes(pathname as any);
-};
+  const publicPaths = [
+    "/",
+    "/signin",
+    "/signup",
+    "/confirm",
+    "/api/auth/signin",
+    "/api/auth/signup",
+    "/api/auth/confirm",
+    "/api/auth/refresh",
+  ];
 
-/**
- * トークンを検証する
- *
- * @param token JWTトークン
- * @returns 検証結果
- */
-const verifyToken = async (token: string): Promise<boolean> => {
-  try {
-    await verifier.verify(token);
-    return true;
-  } catch (error) {
-    console.error("Token verification failed:", error);
-    return false;
-  }
+  return publicPaths.some((path) => pathname.startsWith(path));
 };
 
 /**
@@ -65,21 +44,25 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // クッキーからトークンを取得
-  const cookies = request.cookies.getAll();
-  const authTokenCookie = cookies.find((cookie) => cookie.name === "authToken");
-  const token = authTokenCookie?.value;
+  // リフレッシュトークンをクッキーから取得
+  const refreshToken = request.cookies.get("refreshToken")?.value;
 
-  if (!token) {
-    // トークンがない場合はサインインページにリダイレクト
+  if (!refreshToken) {
+    // リフレッシュトークンがない場合はサインインページにリダイレクト
     return NextResponse.redirect(new URL("/signin", request.url));
   }
 
-  // トークンを検証
-  const isValid = await verifyToken(token);
+  // リフレッシュトークンの有効期限をチェック（簡易的な検証）
+  try {
+    const payload = JSON.parse(atob(refreshToken.split(".")[1]));
+    const expirationTime = payload.exp * 1000; // ミリ秒に変換
 
-  if (!isValid) {
-    // トークンが無効な場合はサインインページにリダイレクト
+    if (Date.now() >= expirationTime) {
+      // リフレッシュトークンが期限切れの場合はサインインページにリダイレクト
+      return NextResponse.redirect(new URL("/signin", request.url));
+    }
+  } catch {
+    // トークンの解析に失敗した場合はサインインページにリダイレクト
     return NextResponse.redirect(new URL("/signin", request.url));
   }
 
