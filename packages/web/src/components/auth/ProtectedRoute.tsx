@@ -1,8 +1,9 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import type React from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { AuthPage } from "./AuthPage";
+import { useEffect } from "react";
+import { useToken } from "@/contexts/TokenContext";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -13,7 +14,15 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   fallback,
 }) => {
-  const { user, loading } = useAuth();
+  const { isAuthenticated, loading } = useToken();
+  const router = useRouter();
+
+  useEffect(() => {
+    // ローディングが完了し、認証されていない場合はサインインページにリダイレクト
+    if (!loading && !isAuthenticated) {
+      router.push("/signin");
+    }
+  }, [loading, isAuthenticated, router]);
 
   // ローディング中はローディング表示
   if (loading) {
@@ -27,9 +36,18 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  // 認証されていない場合は認証ページを表示
-  if (!user) {
-    return fallback || <AuthPage />;
+  // 認証されていない場合はローディング表示（リダイレクト中）
+  if (!isAuthenticated) {
+    return (
+      fallback || (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">サインインページに移動中...</p>
+          </div>
+        </div>
+      )
+    );
   }
 
   // 認証されている場合は子コンポーネントを表示

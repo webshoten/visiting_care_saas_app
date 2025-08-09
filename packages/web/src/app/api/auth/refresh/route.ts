@@ -31,10 +31,24 @@ export async function POST(request: NextRequest) {
     const response = await cognitoClient.send(command);
 
     if (response.AuthenticationResult?.AccessToken) {
-      return NextResponse.json({
-        accessToken: response.AuthenticationResult.AccessToken,
+      // レスポンスを作成（アクセストークンは含めない）
+      const jsonResponse = NextResponse.json({
         message: "トークンの更新に成功しました",
       });
+
+      // 新しいアクセストークンをhttpOnly Cookieに設定
+      jsonResponse.cookies.set(
+        "accessToken",
+        response.AuthenticationResult.AccessToken,
+        {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          maxAge: 15 * 60, // 15分
+        },
+      );
+
+      return jsonResponse;
     } else {
       return NextResponse.json(
         { message: "トークンの更新に失敗しました" },

@@ -15,14 +15,14 @@ export const SignInForm: React.FC<SignInFormProps> = ({
   onSwitchToSignUp,
   prefilledEmail = "",
 }) => {
+  const { checkAuth } = useToken();
   const [formData, setFormData] = useState({
     email: prefilledEmail,
     password: "",
   });
+  const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const { setToken } = useToken();
 
   // prefilledEmailが変更された場合にフォームを更新
   useEffect(() => {
@@ -70,11 +70,8 @@ export const SignInForm: React.FC<SignInFormProps> = ({
         throw new Error(errorData.message || "サインインに失敗しました");
       }
 
-      const { accessToken } = await response.json();
-
-      // トークンを保存
-      setToken(accessToken);
-
+      // サインイン成功（トークンはCookieに自動設定される）
+      await checkAuth(); // 認証状態を更新
       setFormData({
         email: "",
         password: "",

@@ -14,25 +14,28 @@
 // React関連のインポート
 import type React from "react";
 import { useState } from "react";
+import { useToken } from "@/contexts/TokenContext";
 import { ConfirmCodeForm } from "./ConfirmCodeForm";
-// 認証関連のコンポーネントをインポート
 import { SignInForm } from "./SignInForm";
 import { SignUpForm } from "./SignUpForm";
 
 /**
- * 認証モードの型定義
- * 現在表示する認証画面の種類を管理
+ * 認証モードを表す型
+ * - signin: サインインフォーム
+ * - signup: サインアップフォーム
+ * - confirm: 認証コード確認フォーム
  */
 type AuthMode = "signin" | "signup" | "confirm";
 
 /**
- * AuthPageのプロパティ型定義
+ * 認証ページのプロパティ
  */
 interface AuthPageProps {
   onSuccess?: () => void; // 認証成功時のコールバック
 }
 
 export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
+  const { checkAuth } = useToken();
   // 現在の認証モード（サインイン/サインアップ/認証コード確認）
   const [mode, setMode] = useState<AuthMode>("signin");
   // 認証コード確認用のメールアドレス（サインアップから認証コード確認に遷移する際に使用）
@@ -85,9 +88,11 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
    * サインイン成功時のハンドラー
    * pendingEmailをクリアして成功コールバックを実行
    */
-  const handleSuccess = () => {
+  const handleSuccess = async () => {
     // サインイン成功後、pendingEmailをクリア
     setPendingEmail("");
+    // 認証状態を更新
+    await checkAuth();
     onSuccess?.();
   };
 

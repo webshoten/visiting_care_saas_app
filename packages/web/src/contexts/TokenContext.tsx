@@ -2,9 +2,8 @@
  * トークン管理用のコンテキスト
  *
  * 機能:
- * - JWTトークンの状態管理
- * - localStorageでのアクセストークン管理
- * - リフレッシュトークンによる自動更新
+ * - 認証状態の管理
+ * - トークン取得APIの呼び出し
  * - 認証状態の永続化
  */
 
@@ -13,6 +12,7 @@
 import {
   createContext,
   type ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -22,26 +22,14 @@ import {
  * トークンコンテキストの型定義
  */
 interface TokenContextType {
-  token: string | null;
-  setToken: (token: string | null) => void;
-  clearToken: () => void;
-  refreshToken: () => Promise<boolean>;
+  isAuthenticated: boolean;
+  loading: boolean;
+  getToken: () => Promise<string | null>;
+  clearAuth: () => void;
+  checkAuth: () => Promise<boolean>;
 }
 
 const TokenContext = createContext<TokenContextType | undefined>(undefined);
-
-/**
- * トークンの有効期限をチェックする関数
- */
-const isTokenExpired = (token: string): boolean => {
-  try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    const expirationTime = payload.exp * 1000; // ミリ秒に変換
-    return Date.now() >= expirationTime;
-  } catch {
-    return true; // パースエラーの場合は期限切れとみなす
-  }
-};
 
 /**
  * トークンプロバイダーコンポーネント
@@ -49,81 +37,86 @@ const isTokenExpired = (token: string): boolean => {
  * @param children 子コンポーネント
  */
 export const TokenProvider = ({ children }: { children: ReactNode }) => {
-  const [token, setTokenState] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    // 初期化時にlocalStorageからトークンを読み込み
-    const savedToken = localStorage.getItem("authToken");
-    if (savedToken && !isTokenExpired(savedToken)) {
-      setTokenState(savedToken);
-    } else if (savedToken) {
-      // 期限切れの場合は削除
-      localStorage.removeItem("authToken");
+  /**
+   * 認証状態をチェックする関数
+   */
+  const checkAuth = useCallback(async (): Promise<boolean> => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/auth/token", {
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        setIsAuthenticated(true);
+        return true;
+      } else {
+        setIsAuthenticated(false);
+        return false;
+      }
+    } catch (error) {
+      console.error("Auth check failed:", error);
+      setIsAuthenticated(false);
+      return false;
+    } finally {
+      setLoading(false);
     }
   }, []);
 
+  useEffect(() => {
+    // 初期化時に認証状態をチェック
+    checkAuth();
+  }, [checkAuth]);
+
   /**
-   * リフレッシュトークンを使用してアクセストークンを更新
+   * アクセストークンを取得する関数
    */
-  const refreshToken = async (): Promise<boolean> => {
+  const getToken = async (): Promise<string | null> => {
     try {
-      const response = await fetch("/api/auth/refresh", {
-        method: "POST",
-        credentials: "include", // リフレッシュトークンをCookieで送信
+      const response = await fetch("/api/auth/token", {
+        credentials: "include",
       });
 
       if (response.ok) {
         const data = await response.json();
-        setToken(data.accessToken);
-        return true;
+        setIsAuthenticated(true);
+        return data.accessToken;
       } else {
-        // リフレッシュ失敗時はログアウト
-        clearToken();
-        return false;
+        setIsAuthenticated(false);
+        return null;
       }
     } catch (error) {
-      console.error("Token refresh failed:", error);
-      clearToken();
-      return false;
+      console.error("Token retrieval failed:", error);
+      setIsAuthenticated(false);
+      return null;
     }
   };
 
   /**
-   * トークンを設定する関数
-   * localStorageに保存
-   *
-   * @param newToken 新しいトークン（nullの場合は削除）
+   * 認証をクリアする関数
    */
-  const setToken = (newToken: string | null) => {
-    if (newToken && isTokenExpired(newToken)) {
-      // 期限切れの場合はクリア
-      clearToken();
-      return;
+  const clearAuth = async () => {
+    try {
+      // サインアウトAPIを呼び出してCookieをクリア
+      await fetch("/api/auth/signout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (error) {
+      console.error("Signout API error:", error);
     }
-
-    setTokenState(newToken);
-
-    if (newToken) {
-      // トークンをlocalStorageに保存
-      localStorage.setItem("authToken", newToken);
-    } else {
-      // トークンを削除
-      localStorage.removeItem("authToken");
-    }
-  };
-
-  /**
-   * トークンをクリアする関数
-   * localStorageから削除
-   */
-  const clearToken = () => {
-    setTokenState(null);
-    localStorage.removeItem("authToken");
+    
+    setIsAuthenticated(false);
+    // サインインページにリダイレクト
+    window.location.href = "/signin";
   };
 
   return (
     <TokenContext.Provider
-      value={{ token, setToken, clearToken, refreshToken }}
+      value={{ isAuthenticated, loading, getToken, clearAuth, checkAuth }}
     >
       {children}
     </TokenContext.Provider>

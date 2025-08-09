@@ -31,11 +31,22 @@ export async function POST(request: NextRequest) {
     const response = await cognitoClient.send(command);
 
     if (response.AuthenticationResult?.AccessToken) {
-      // レスポンスを作成
+      // レスポンスを作成（アクセストークンは含めない）
       const jsonResponse = NextResponse.json({
-        accessToken: response.AuthenticationResult.AccessToken,
         message: "サインインに成功しました",
       });
+
+      // アクセストークンをhttpOnly Cookieに設定
+      jsonResponse.cookies.set(
+        "accessToken",
+        response.AuthenticationResult.AccessToken,
+        {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          maxAge: 15 * 60, // 15分
+        },
+      );
 
       // リフレッシュトークンをhttpOnly Cookieに設定
       if (response.AuthenticationResult.RefreshToken) {
@@ -62,8 +73,7 @@ export async function POST(request: NextRequest) {
     console.error("Sign in error:", error);
 
     if (error.name === "NotAuthorizedException") {
-      return
-NextResponse.json(
+      return NextResponse.json(
         { message: "メールアドレスまたはパスワードが正しくありません" },
         { status: 401 },
       );

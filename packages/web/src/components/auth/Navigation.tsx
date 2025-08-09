@@ -1,6 +1,6 @@
 /**
  * ナビゲーションコンポーネント
- * 
+ *
  * 機能:
  * - 認証状態に応じたナビゲーション表示
  * - サインイン/サインアウト機能
@@ -10,24 +10,20 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import type React from "react";
 import { useToken } from "@/contexts/TokenContext";
 
 /**
  * ナビゲーションコンポーネント
  */
 export const Navigation: React.FC = () => {
-  const { token, clearToken } = useToken();
-  const router = useRouter();
+  const { isAuthenticated, clearAuth } = useToken();
 
   /**
    * サインアウト処理
    * トークンをクリアしてサインインページにリダイレクト
    */
   const handleSignOut = async () => {
-    clearToken();
-    router.push("/signin");
+    clearAuth();
   };
 
   /**
@@ -87,7 +83,7 @@ export const Navigation: React.FC = () => {
               ホーム
             </Link>
 
-            {token ? <AuthenticatedNav /> : <UnauthenticatedNav />}
+            {isAuthenticated ? <AuthenticatedNav /> : <UnauthenticatedNav />}
           </div>
         </div>
       </div>
