@@ -11,6 +11,7 @@
 
 "use client";
 
+import { useRouter } from "next/navigation";
 // React関連のインポート
 import type React from "react";
 import { useState } from "react";
@@ -35,6 +36,7 @@ interface AuthPageProps {
 }
 
 export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
+  const router = useRouter();
   const { checkAuth } = useToken();
   // 現在の認証モード（サインイン/サインアップ/認証コード確認）
   const [mode, setMode] = useState<AuthMode>("signin");
@@ -80,8 +82,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccess }) => {
   const handleConfirmSuccess = () => {
     // 認証コード確認完了後、サインインフォームに遷移
     setMode("signin");
-    // 成功メッセージを表示するためのコールバック
-    onSuccess?.();
+    router.push("/signin");
   };
 
   /**
