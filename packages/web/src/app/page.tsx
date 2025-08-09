@@ -5,8 +5,9 @@ import { useToken } from "@/contexts/TokenContext";
 
 export default function Home() {
 	const { getToken, isAuthenticated, loading } = useToken();
-	const [apiResponse, setApiResponse] = useState<string>("");
+	const [apiResponse, setApiResponse] = useState<any>(null);
 	const [apiLoading, setApiLoading] = useState(false);
+	const [copySuccess, setCopySuccess] = useState(false);
 
 	const fetchApiData = async () => {
 		setApiLoading(true);
@@ -17,6 +18,10 @@ export default function Home() {
 
 			// トークンを取得
 			const token = await getToken();
+			if (!token) {
+				setApiResponse({ error: "認証が必要です。再度ログインしてください。" });
+				return;
+			}
 
 			const response = await fetch(apiUrl, {
 				method: "GET",
@@ -27,18 +32,34 @@ export default function Home() {
 			});
 
 			if (response.ok) {
-				const data = await response.text();
+				const data = await response.json();
 				setApiResponse(data);
 			} else {
-				setApiResponse(`API Error: ${response.status} ${response.statusText}`);
+				setApiResponse({
+					error: `API Error: ${response.status} ${response.statusText}`,
+					status: response.status,
+					statusText: response.statusText,
+				});
 			}
 		} catch (error) {
 			console.error("API fetch error:", error);
-			setApiResponse(
-				`Error: ${error instanceof Error ? error.message : "Unknown error"}`,
-			);
+			setApiResponse({
+				error: `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
+			});
 		} finally {
 			setApiLoading(false);
+		}
+	};
+
+	const handleCopyJson = async () => {
+		if (!apiResponse) return;
+		
+		try {
+			await navigator.clipboard.writeText(JSON.stringify(apiResponse, null, 2));
+			setCopySuccess(true);
+			setTimeout(() => setCopySuccess(false), 2000);
+		} catch (error) {
+			console.error("コピーに失敗しました:", error);
 		}
 	};
 
@@ -66,22 +87,81 @@ export default function Home() {
 						</div>
 					</div>
 
+					{/* 保護されたページへの案内 */}
+					<div className="bg-white rounded-lg shadow-sm p-6">
+						<h2 className="text-xl font-semibold text-gray-900 mb-4">
+							保護されたページ
+						</h2>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div className="border border-gray-200 rounded-lg p-4">
+								<h3 className="font-semibold text-gray-900 mb-2">
+									ダッシュボード
+								</h3>
+								<p className="text-gray-600 mb-3">
+									認証が必要なダッシュボードページです
+								</p>
+								<a
+									href="/dashboard"
+									className="inline-block bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700"
+								>
+									ダッシュボードへ
+								</a>
+							</div>
+							<div className="border border-gray-200 rounded-lg p-4">
+								<h3 className="font-semibold text-gray-900 mb-2">
+									プロフィール
+								</h3>
+								<p className="text-gray-600 mb-3">
+									認証が必要なプロフィール編集ページです
+								</p>
+								<a
+									href="/profile"
+									className="inline-block bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700"
+								>
+									プロフィールへ
+								</a>
+							</div>
+						</div>
+					</div>
+
 					{/* API レスポンス表示 */}
-					<div>
-						<h2 className="text-xl font-semibold mb-4">API レスポンス</h2>
-						<div className="bg-white p-4 rounded-lg shadow">
-							<button
-								type="button"
-								onClick={fetchApiData}
-								disabled={apiLoading}
-								className="mb-4 bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 disabled:bg-gray-400"
-							>
-								{apiLoading ? "読み込み中..." : "APIを呼び出し"}
-							</button>
+					<div className="bg-white rounded-lg shadow-sm p-6">
+						<div className="flex justify-between items-center mb-4">
+							<h2 className="text-xl font-semibold text-gray-900">API レスポンス</h2>
 							{apiResponse && (
-								<pre className="text-sm text-gray-700">{apiResponse}</pre>
+								<button
+									type="button"
+									onClick={handleCopyJson}
+									className="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+								>
+									{copySuccess ? "コピーしました！" : "JSONをコピー"}
+								</button>
 							)}
 						</div>
+						<button
+							type="button"
+							onClick={fetchApiData}
+							disabled={apiLoading}
+							className="mb-4 bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 disabled:bg-gray-400"
+						>
+							{apiLoading ? "読み込み中..." : "APIを呼び出し"}
+						</button>
+						
+						{apiResponse && (
+							<div className="bg-gray-900 p-4 rounded-md overflow-auto max-h-96">
+								<pre className="text-sm text-green-400 font-mono whitespace-pre-wrap">
+									{JSON.stringify(apiResponse, null, 2)}
+								</pre>
+							</div>
+						)}
+
+						{!apiResponse && (
+							<div className="bg-gray-100 p-4 rounded-md">
+								<p className="text-sm text-gray-700">
+									APIを呼び出すにはボタンをクリックしてください
+								</p>
+							</div>
+						)}
 					</div>
 				</div>
 			</div>
