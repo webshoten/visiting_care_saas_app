@@ -11,82 +11,74 @@
 
 import Link from "next/link";
 import { useToken } from "@/contexts/TokenContext";
+import { SignInButton, SignOutButton } from "./AuthButton";
 
 /**
  * ナビゲーションコンポーネント
  */
 export const Navigation: React.FC = () => {
-  const { isAuthenticated, clearAuth } = useToken();
+	const { isAuthenticated, clearAuth } = useToken();
 
-  /**
-   * サインアウト処理
-   * トークンをクリアしてサインインページにリダイレクト
-   */
-  const handleSignOut = async () => {
-    clearAuth();
-  };
+	/**
+	 * サインアウト処理
+	 * トークンをクリアしてサインインページにリダイレクト
+	 */
+	const handleSignOut = async () => {
+		clearAuth();
+	};
 
-  /**
-   * 認証済みユーザー用のナビゲーションリンク
-   */
-  const AuthenticatedNav = () => (
-    <>
-      <Link
-        href="/dashboard"
-        className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-      >
-        ダッシュボード
-      </Link>
-      <Link
-        href="/profile"
-        className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-      >
-        プロフィール
-      </Link>
-      <button
-        type="button"
-        onClick={handleSignOut}
-        className="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
-      >
-        サインアウト
-      </button>
-    </>
-  );
+	/**
+	 * 認証済みユーザー用のナビゲーションリンク
+	 */
+	const AuthenticatedNav = () => (
+		<>
+			<Link
+				href="/dashboard"
+				className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+			>
+				ダッシュボード
+			</Link>
+			<Link
+				href="/profile"
+				className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+			>
+				プロフィール
+			</Link>
+			<SignOutButton type="button" onClick={handleSignOut} size="icon" />
+		</>
+	);
 
-  /**
-   * 未認証ユーザー用のナビゲーションリンク
-   */
-  const UnauthenticatedNav = () => (
-    <Link
-      href="/signin"
-      className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-    >
-      サインイン
-    </Link>
-  );
+	/**
+	 * 未認証ユーザー用のナビゲーションリンク
+	 */
+	const UnauthenticatedNav = () => (
+		<Link href="/signin" className="">
+			<SignInButton type="button" size="icon" />
+		</Link>
+	);
 
-  return (
-    <nav className="bg-white shadow-sm border-b">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
-          {/* ロゴ */}
-          <Link href="/" className="text-xl font-bold text-gray-900">
-            MyApp
-          </Link>
+	return (
+		<nav className="bg-white shadow-sm border-b">
+			<div className="container mx-auto px-4">
+				<div className="flex justify-between items-center h-16">
+					{/* ロゴ */}
+					<Link href="/" className="text-xl font-bold text-gray-900">
+						MyApp
+					</Link>
 
-          {/* ナビゲーションリンク */}
-          <div className="flex items-center space-x-4">
-            <Link
-              href="/"
-              className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              ホーム
-            </Link>
+					{/* ナビゲーションリンク */}
+					<div className="flex items-center space-x-4">
+						<Link
+							href="/"
+							className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+						>
+							ホーム
+						</Link>
 
-            {isAuthenticated ? <AuthenticatedNav /> : <UnauthenticatedNav />}
-          </div>
-        </div>
-      </div>
-    </nav>
-  );
+						{isAuthenticated ? <AuthenticatedNav /> : <UnauthenticatedNav />}
+					</div>
+				</div>
+			</div>
+		</nav>
+	);
 };

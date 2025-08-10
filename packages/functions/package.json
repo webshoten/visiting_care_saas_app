@@ -3,8 +3,10 @@
   "version": "0.0.0",
   "type": "module",
   "dependencies": {
+    "@apollo/server": "^5.0.0",
     "@visiting_app/core": "*",
     "aws-jwt-verify": "^5.1.0",
+    "graphql-tag": "^2.12.6",
     "sst": "*"
   },
   "devDependencies": {

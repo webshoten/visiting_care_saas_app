@@ -4,167 +4,146 @@ import { useState } from "react";
 import { useToken } from "@/contexts/TokenContext";
 
 export default function Home() {
-	const { getToken, isAuthenticated, loading } = useToken();
-	const [apiResponse, setApiResponse] = useState<any>(null);
-	const [apiLoading, setApiLoading] = useState(false);
-	const [copySuccess, setCopySuccess] = useState(false);
+  const { getToken, isAuthenticated, loading } = useToken();
+  const [apiResponse, setApiResponse] = useState<any>(null);
+  const [apiLoading, setApiLoading] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
 
-	const fetchApiData = async () => {
-		setApiLoading(true);
-		try {
-			// 環境変数からAPIエンドポイントを取得
-			const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
-			console.log("API URL:", apiUrl); // デバッグ用
+  const fetchApiData = async () => {
+    setApiLoading(true);
+    try {
+      // REST APIエンドポイントを呼び出し
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      console.log("API URL:", apiUrl);
 
-			// トークンを取得
-			const token = await getToken();
-			if (!token) {
-				setApiResponse({ error: "認証が必要です。再度ログインしてください。" });
-				return;
-			}
+      // トークンを取得
+      const token = await getToken();
+      if (!token) {
+        setApiResponse({ error: "認証が必要です。再度ログインしてください。" });
+        return;
+      }
 
-			const response = await fetch(apiUrl, {
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${token}`, // Authorization Headerでトークン送信
-				},
-			});
+      const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-			if (response.ok) {
-				const data = await response.json();
-				setApiResponse(data);
-			} else {
-				setApiResponse({
-					error: `API Error: ${response.status} ${response.statusText}`,
-					status: response.status,
-					statusText: response.statusText,
-				});
-			}
-		} catch (error) {
-			console.error("API fetch error:", error);
-			setApiResponse({
-				error: `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
-			});
-		} finally {
-			setApiLoading(false);
-		}
-	};
+      if (response.ok) {
+        const data = await response.json();
+        setApiResponse(data);
+      } else {
+        const errorText = await response.text();
+        setApiResponse({
+          error: `API Error: ${response.status} ${response.statusText}`,
+          details: errorText,
+          status: response.status,
+          statusText: response.statusText,
+        });
+      }
+    } catch (error) {
+      console.error("API fetch error:", error);
+      setApiResponse({
+        error: `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
+      });
+    } finally {
+      setApiLoading(false);
+    }
+  };
 
-	const handleCopyJson = async () => {
-		if (!apiResponse) return;
-		
-		try {
-			await navigator.clipboard.writeText(JSON.stringify(apiResponse, null, 2));
-			setCopySuccess(true);
-			setTimeout(() => setCopySuccess(false), 2000);
-		} catch (error) {
-			console.error("コピーに失敗しました:", error);
-		}
-	};
+  const handleCopyJson = async () => {
+    if (!apiResponse) return;
 
-	return (
-		<div className="min-h-screen bg-gray-50">
-			<div className="container mx-auto px-4 py-8">
-				<div className="max-w-4xl mx-auto space-y-6">
-					{/* ヘッダー */}
-					<div className="text-center">
-						<h1 className="text-3xl font-bold text-gray-900 mb-4">
-							Next.js + SST + Cognito アプリケーション
-						</h1>
-						<p className="text-gray-600">
-							認証機能付きのWebアプリケーションです
-						</p>
-					</div>
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(apiResponse, null, 2));
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (error) {
+      console.error("コピーに失敗しました:", error);
+    }
+  };
 
-					{/* 認証状態表示 */}
-					<div>
-						<h2 className="text-xl font-semibold mb-4">認証状態</h2>
-						<div className="p-4 bg-green-50 border border-green-200 rounded-md">
-							<p className="text-gray-900">
-								{isAuthenticated ? "認証済み" : "未認証"}
-							</p>
-						</div>
-					</div>
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto space-y-6">
+          {/* ヘッダー */}
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+              Next.js + SST + Cognito アプリケーション
+            </h1>
+            <p className="text-gray-600">
+              認証機能付きのWebアプリケーションです
+            </p>
+          </div>
 
-					{/* 保護されたページへの案内 */}
-					<div className="bg-white rounded-lg shadow-sm p-6">
-						<h2 className="text-xl font-semibold text-gray-900 mb-4">
-							保護されたページ
-						</h2>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<div className="border border-gray-200 rounded-lg p-4">
-								<h3 className="font-semibold text-gray-900 mb-2">
-									ダッシュボード
-								</h3>
-								<p className="text-gray-600 mb-3">
-									認証が必要なダッシュボードページです
-								</p>
-								<a
-									href="/dashboard"
-									className="inline-block bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700"
-								>
-									ダッシュボードへ
-								</a>
-							</div>
-							<div className="border border-gray-200 rounded-lg p-4">
-								<h3 className="font-semibold text-gray-900 mb-2">
-									プロフィール
-								</h3>
-								<p className="text-gray-600 mb-3">
-									認証が必要なプロフィール編集ページです
-								</p>
-								<a
-									href="/profile"
-									className="inline-block bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700"
-								>
-									プロフィールへ
-								</a>
-							</div>
-						</div>
-					</div>
+          {/* 認証状態表示 */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4">認証状態</h2>
+            <div
+              className={`p-4 border rounded-md ${
+                isAuthenticated
+                  ? "bg-green-50 border-green-200"
+                  : "bg-yellow-50 border-yellow-200"
+              }`}
+            >
+              <p className="text-gray-900">
+                {loading
+                  ? "認証状態を確認中..."
+                  : isAuthenticated
+                    ? "✅ 認証済み"
+                    : "⚠️ 未認証"}
+              </p>
+            </div>
+          </div>
 
-					{/* API レスポンス表示 */}
-					<div className="bg-white rounded-lg shadow-sm p-6">
-						<div className="flex justify-between items-center mb-4">
-							<h2 className="text-xl font-semibold text-gray-900">API レスポンス</h2>
-							{apiResponse && (
-								<button
-									type="button"
-									onClick={handleCopyJson}
-									className="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
-								>
-									{copySuccess ? "コピーしました！" : "JSONをコピー"}
-								</button>
-							)}
-						</div>
-						<button
-							type="button"
-							onClick={fetchApiData}
-							disabled={apiLoading}
-							className="mb-4 bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 disabled:bg-gray-400"
-						>
-							{apiLoading ? "読み込み中..." : "APIを呼び出し"}
-						</button>
-						
-						{apiResponse && (
-							<div className="bg-gray-900 p-4 rounded-md overflow-auto max-h-96">
-								<pre className="text-sm text-green-400 font-mono whitespace-pre-wrap">
-									{JSON.stringify(apiResponse, null, 2)}
-								</pre>
-							</div>
-						)}
+          {/* API レスポンス表示 */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
+              <h2 className="text-xl font-semibold text-gray-900">
+                API レスポンス
+              </h2>
+              {apiResponse && (
+                <button
+                  type="button"
+                  onClick={handleCopyJson}
+                  className="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+                >
+                  {copySuccess ? "✅ コピーしました！" : "📋 JSONをコピー"}
+                </button>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={fetchApiData}
+              disabled={apiLoading || !isAuthenticated}
+              className="mb-4 bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            >
+              {apiLoading ? "⏳ 読み込み中..." : "🚀 APIを呼び出し"}
+            </button>
 
-						{!apiResponse && (
-							<div className="bg-gray-100 p-4 rounded-md">
-								<p className="text-sm text-gray-700">
-									APIを呼び出すにはボタンをクリックしてください
-								</p>
-							</div>
-						)}
-					</div>
-				</div>
-			</div>
-		</div>
-	);
+            {apiResponse && (
+              <div className="bg-gray-900 p-4 rounded-md overflow-auto max-h-96">
+                <pre className="text-sm text-green-400 font-mono whitespace-pre-wrap">
+                  {JSON.stringify(apiResponse, null, 2)}
+                </pre>
+              </div>
+            )}
+
+            {!apiResponse && (
+              <div className="bg-gray-100 p-4 rounded-md">
+                <p className="text-sm text-gray-700">
+                  {!isAuthenticated
+                    ? "APIを呼び出すには先に認証してください"
+                    : "APIを呼び出すにはボタンをクリックしてください"}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
