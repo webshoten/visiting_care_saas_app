@@ -29,6 +29,9 @@ export default {
             "userId": [
                 1
             ],
+            "version": [
+                1
+            ],
             "__typename": [
                 1
             ]

@@ -17,6 +17,7 @@ export interface Query {
 export interface User {
     noteId: (Scalars['String'] | null)
     userId: (Scalars['String'] | null)
+    version: (Scalars['String'] | null)
     __typename: 'User'
 }
 
@@ -30,6 +31,7 @@ export interface QueryGenqlSelection{
 export interface UserGenqlSelection{
     noteId?: boolean | number
     userId?: boolean | number
+    version?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }

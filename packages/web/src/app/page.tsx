@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useGenQL } from "@/contexts/GenQLContext";
 import { useToken } from "@/contexts/TokenContext";
 
@@ -32,6 +32,7 @@ export default function Home() {
             },
             userId: true,
             noteId: true,
+            version: true,
           },
         });
 

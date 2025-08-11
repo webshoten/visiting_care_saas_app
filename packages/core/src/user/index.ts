@@ -7,6 +7,7 @@ import { Resource } from "sst";
 export interface UserType {
   userId: string;
   noteId: string;
+  version: string;
 }
 
 export namespace User {

@@ -11,6 +11,7 @@ export const GraphQLUserType = builder.objectRef<UserType>("User").implement({
   fields: (t) => ({
     userId: t.exposeString("userId"),
     noteId: t.exposeString("noteId"),
+    version: t.exposeString("version"),
   }),
 });
 
