@@ -1,40 +1,30 @@
 "use client";
 
-import { createClient } from "@visiting_app/types";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import { useGenQL } from "@/contexts/GenQLContext";
 import { useToken } from "@/contexts/TokenContext";
 
 export default function Home() {
-  const { isAuthenticated, loading, getToken } = useToken();
+  const { isAuthenticated, loading } = useToken();
+  const { client, loading: genqlLoading } = useGenQL();
   const [copySuccess, setCopySuccess] = useState(false);
   const [data, setData] = useState<any>(null);
   const [fetching, setFetching] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  // helloクエリを実行
+  // userクエリを実行
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !client || genqlLoading) {
       setData(null);
       setError(null);
       return;
     }
 
-    const fetchHello = async () => {
+    const fetchUser = async () => {
       setFetching(true);
       setError(null);
 
       try {
-        // トークンを取得
-        const token = await getToken();
-
-        // GenQLクライアントを作成（認証ヘッダー付き）
-        const client = createClient({
-          url: process.env.NEXT_PUBLIC_API_URL + "/graphql",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
         const result = await client.query({
           user: {
             __args: {
@@ -53,8 +43,8 @@ export default function Home() {
       }
     };
 
-    fetchHello();
-  }, [isAuthenticated, getToken]);
+    fetchUser();
+  }, [isAuthenticated, client, genqlLoading]);
 
   const handleCopyJson = async () => {
     if (!data) return;

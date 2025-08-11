@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { GenQLProvider } from "@/contexts/GenQLContext";
 import { TokenProvider } from "@/contexts/TokenContext";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -18,7 +19,9 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={inter.className}>
-        <TokenProvider>{children}</TokenProvider>
+        <TokenProvider>
+          <GenQLProvider>{children}</GenQLProvider>
+        </TokenProvider>
       </body>
     </html>
   );
