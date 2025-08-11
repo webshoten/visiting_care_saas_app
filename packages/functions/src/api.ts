@@ -15,7 +15,8 @@ const builder = new SchemaBuilder({});
 builder.queryType({
   fields: (t) => ({
     hello: t.string({
-      resolve:async () => `Hello from Pothos!DynamoDB data is ${await User.getUser(docClient, { userId: "1" })}`,
+      resolve: async () =>
+        `Hello from Pothos!DynamoDB data is ${JSON.stringify(await User.getUser(docClient, { userId: "1" }))}`,
     }),
   }),
 });
