@@ -1,19 +1,60 @@
 "use client";
 
-import { useHelloQuery } from "@visiting_app/types";
-import { useState } from "react";
+import { createClient } from "@visiting_app/types";
+import { useEffect, useState } from "react";
 import { useToken } from "@/contexts/TokenContext";
 
 export default function Home() {
-  const { isAuthenticated, loading } = useToken();
+  const { isAuthenticated, loading, getToken } = useToken();
   const [copySuccess, setCopySuccess] = useState(false);
+  const [data, setData] = useState<any>(null);
+  const [fetching, setFetching] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
-  // urqlフックを使用して型安全なGraphQLクエリ
-  const [result] = useHelloQuery({
-    pause: !isAuthenticated, // 認証されていない場合はクエリを実行しない
-  });
+  // helloクエリを実行
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setData(null);
+      setError(null);
+      return;
+    }
 
-  const { data, fetching, error } = result;
+    const fetchHello = async () => {
+      setFetching(true);
+      setError(null);
+
+      try {
+        // トークンを取得
+        const token = await getToken();
+
+        // GenQLクライアントを作成（認証ヘッダー付き）
+        const client = createClient({
+          url: process.env.NEXT_PUBLIC_API_URL + "/graphql",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const result = await client.query({
+          user: {
+            __args: {
+              userId: "1",
+            },
+            userId: true,
+            noteId: true,
+          },
+        });
+
+        setData(result);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error("Unknown error"));
+      } finally {
+        setFetching(false);
+      }
+    };
+
+    fetchHello();
+  }, [isAuthenticated, getToken]);
 
   const handleCopyJson = async () => {
     if (!data) return;

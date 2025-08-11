@@ -1,4 +1,5 @@
 // 共有型のエクスポート
 
-export * from "./generated/graphql";
+// 新しいGenQLクライアントをエクスポート
+export * from "./generated/genql";
 export * from "./graphql";

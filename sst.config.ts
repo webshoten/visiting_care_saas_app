@@ -170,6 +170,16 @@ export default $config({
       link: [api, userPool], // API GatewayとUser Poolとの連携
     });
 
+    if ($dev) {
+      new sst.x.DevCommand("PothosGraphqlExtractor", {
+        dev: {
+          command: "npm run watch",
+          directory: "packages/functions",
+          autostart: true,
+        },
+      });
+    }
+
     /**
      * リソースのエクスポート
      * 他のスタックや外部から参照可能なリソースを定義

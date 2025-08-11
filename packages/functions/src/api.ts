@@ -1,29 +1,14 @@
-import SchemaBuilder from "@pothos/core";
-import { docClient } from "@visiting_app/core/dynamo-db";
-import { User } from "@visiting_app/core/user";
 import type {
   APIGatewayProxyEventV2,
   APIGatewayProxyResult,
   Context,
 } from "aws-lambda";
 import { createYoga } from "graphql-yoga";
-
-// Pothos Builderの作成
-const builder = new SchemaBuilder({});
-
-// Query型の定義
-builder.queryType({
-  fields: (t) => ({
-    hello: t.string({
-      resolve: async () =>
-        `Hello from Pothos!DynamoDB data is ${JSON.stringify(await User.getUser(docClient, { userId: "1" }))}`,
-    }),
-  }),
-});
+import { schema } from "./schema";
 
 // GraphQL Yogaサーバーの作成
 const yoga = createYoga({
-  schema: builder.toSchema(),
+  schema,
   graphqlEndpoint: "/graphql",
   landingPage: true,
   logging: true,
