@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { Navigation } from "@/components/auth/Navigation";
 import { GenQLProvider } from "@/contexts/GenQLContext";
 import { TokenProvider } from "@/contexts/TokenContext";
 
@@ -20,6 +21,7 @@ export default function RootLayout({
     <html lang="ja">
       <body className={inter.className}>
         <TokenProvider>
+          <Navigation />
           <GenQLProvider>{children}</GenQLProvider>
         </TokenProvider>
       </body>
