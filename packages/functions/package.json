@@ -2,14 +2,27 @@
   "name": "@visiting_app/functions",
   "version": "0.0.0",
   "type": "module",
+  "scripts": {
+    "codegen": "graphql-codegen",
+    "generate-schema": "tsx scripts/generate-schema.ts"
+  },
   "dependencies": {
     "@apollo/server": "^5.0.0",
+    "@graphql-yoga/node": "^3.9.1",
+    "@pothos/core": "^4.8.1",
     "@visiting_app/core": "*",
     "aws-jwt-verify": "^5.1.0",
+    "graphql": "^16.11.0",
+    "graphql-request": "^6.1.0",
     "graphql-tag": "^2.12.6",
     "sst": "*"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8"
+    "@graphql-codegen/cli": "^5.0.7",
+    "@graphql-codegen/typescript": "^4.1.0",
+    "@graphql-codegen/typescript-operations": "^4.1.0",
+    "@graphql-codegen/typescript-urql": "^4.0.1",
+    "@types/aws-lambda": "^8",
+    "tsx": "^4.19.2"
   }
 }

@@ -1,63 +1,25 @@
 "use client";
 
+import { useHelloQuery } from "@visiting_app/types";
 import { useState } from "react";
 import { useToken } from "@/contexts/TokenContext";
 
 export default function Home() {
-  const { getToken, isAuthenticated, loading } = useToken();
-  const [apiResponse, setApiResponse] = useState<any>(null);
-  const [apiLoading, setApiLoading] = useState(false);
+  const { isAuthenticated, loading } = useToken();
   const [copySuccess, setCopySuccess] = useState(false);
 
-  const fetchApiData = async () => {
-    setApiLoading(true);
-    try {
-      // REST APIエンドポイントを呼び出し
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      console.log("API URL:", apiUrl);
+  // urqlフックを使用して型安全なGraphQLクエリ
+  const [result] = useHelloQuery({
+    pause: !isAuthenticated, // 認証されていない場合はクエリを実行しない
+  });
 
-      // トークンを取得
-      const token = await getToken();
-      if (!token) {
-        setApiResponse({ error: "認証が必要です。再度ログインしてください。" });
-        return;
-      }
-
-      const response = await fetch(apiUrl, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setApiResponse(data);
-      } else {
-        const errorText = await response.text();
-        setApiResponse({
-          error: `API Error: ${response.status} ${response.statusText}`,
-          details: errorText,
-          status: response.status,
-          statusText: response.statusText,
-        });
-      }
-    } catch (error) {
-      console.error("API fetch error:", error);
-      setApiResponse({
-        error: `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
-      });
-    } finally {
-      setApiLoading(false);
-    }
-  };
+  const { data, fetching, error } = result;
 
   const handleCopyJson = async () => {
-    if (!apiResponse) return;
+    if (!data) return;
 
     try {
-      await navigator.clipboard.writeText(JSON.stringify(apiResponse, null, 2));
+      await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     } catch (error) {
@@ -99,13 +61,13 @@ export default function Home() {
             </div>
           </div>
 
-          {/* API レスポンス表示 */}
+          {/* GraphQL レスポンス表示 */}
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
               <h2 className="text-xl font-semibold text-gray-900">
-                API レスポンス
+                GraphQL レスポンス
               </h2>
-              {apiResponse && (
+              {data && (
                 <button
                   type="button"
                   onClick={handleCopyJson}
@@ -115,29 +77,33 @@ export default function Home() {
                 </button>
               )}
             </div>
-            <button
-              type="button"
-              onClick={fetchApiData}
-              disabled={apiLoading || !isAuthenticated}
-              className="mb-4 bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-            >
-              {apiLoading ? "⏳ 読み込み中..." : "🚀 APIを呼び出し"}
-            </button>
 
-            {apiResponse && (
+            {fetching && (
+              <div className="mb-4">
+                <p className="text-sm text-gray-600">⏳ 読み込み中...</p>
+              </div>
+            )}
+
+            {error && (
+              <div className="mb-4 bg-red-50 border border-red-200 p-4 rounded-md">
+                <p className="text-sm text-red-700">エラー: {error.message}</p>
+              </div>
+            )}
+
+            {data && (
               <div className="bg-gray-900 p-4 rounded-md overflow-auto max-h-96">
                 <pre className="text-sm text-green-400 font-mono whitespace-pre-wrap">
-                  {JSON.stringify(apiResponse, null, 2)}
+                  {JSON.stringify(data, null, 2)}
                 </pre>
               </div>
             )}
 
-            {!apiResponse && (
+            {!data && !fetching && !error && (
               <div className="bg-gray-100 p-4 rounded-md">
                 <p className="text-sm text-gray-700">
                   {!isAuthenticated
-                    ? "APIを呼び出すには先に認証してください"
-                    : "APIを呼び出すにはボタンをクリックしてください"}
+                    ? "GraphQLを呼び出すには先に認証してください"
+                    : "認証後にGraphQLクエリが自動実行されます"}
                 </p>
               </div>
             )}

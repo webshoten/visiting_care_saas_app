@@ -147,8 +147,13 @@ export default $config({
       },
     });
 
-    // APIルートの定義（認証付き）
-    api.route("GET /", "packages/functions/src/api.handler", {
+    // GraphQL APIルートの追加
+    api.route("POST /graphql", "packages/functions/src/api.handler", {
+      auth: {
+        lambda: authorizer.id,
+      },
+    });
+    api.route("GET /graphql", "packages/functions/src/api.handler", {
       auth: {
         lambda: authorizer.id,
       },
