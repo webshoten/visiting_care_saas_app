@@ -14,6 +14,9 @@
 	},
 	"dependencies": {
 		"@aws-sdk/client-cognito-identity-provider": "^3.859.0",
+		"@radix-ui/react-dialog": "^1.1.14",
+		"@radix-ui/react-label": "^2.1.7",
+		"@radix-ui/react-popover": "^1.1.14",
 		"@radix-ui/react-slot": "^1.2.3",
 		"@visiting_app/core": "*",
 		"@visiting_app/types": "*",
@@ -23,10 +26,12 @@
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"cookies-next": "^6.1.0",
+		"date-fns": "^4.1.0",
 		"graphql-request": "^6.1.0",
 		"lucide-react": "^0.539.0",
 		"next": "15.4.5",
 		"react": "19.1.0",
+		"react-day-picker": "^9.8.1",
 		"react-dom": "19.1.0",
 		"tailwind-merge": "^3.3.1"
 	},

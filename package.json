@@ -6,6 +6,7 @@
   ],
   "scripts": {},
   "devDependencies": {
+    "@biomejs/biome": "^2.1.4",
     "@tsconfig/node22": "^22",
     "eslint-config-serverless-stack": "^0.69.7",
     "typescript": "^5"
