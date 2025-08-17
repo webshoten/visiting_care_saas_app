@@ -10,8 +10,7 @@ export default function DashboardPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto ">
             <h1 className="text-3xl font-bold text-gray-900 mb-8">マスター</h1>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="lg:col-span-2 bg-white rounded-lg shadow-sm p-6">
               <ListCareRecipientTable />
             </div>
           </div>
