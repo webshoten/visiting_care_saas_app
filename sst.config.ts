@@ -45,6 +45,15 @@ export default $config({
       primaryIndex: { hashKey: "userId", rangeKey: "noteId" }, // 複合主キー
     });
 
+    // CareRecipient専用テーブル
+    const careRecipientTable = new sst.aws.Dynamo("CareRecipientTable", {
+      fields: {
+        id: "string", // パーティションキー
+        createdAt: "string", // ソートキー（検索・ソート用）
+      },
+      primaryIndex: { hashKey: "id", rangeKey: "createdAt" },
+    });
+
     /**
      * Cognito User Pool
      * ユーザー認証システムの設定
@@ -126,7 +135,7 @@ export default $config({
      * - Cognito認証の統合
      */
     const api = new sst.aws.ApiGatewayV2("MyApi", {
-      link: [table, userPool], // DynamoDBテーブルとUser Poolとの連携
+      link: [table, careRecipientTable, userPool], // DynamoDBテーブルとUser Poolとの連携
     });
 
     /**
@@ -188,6 +197,7 @@ export default $config({
     return {
       MyApi: api, // API Gateway
       MyTable: table, // DynamoDBテーブル
+      MyCareRecipientTable: careRecipientTable, // DynamoDBテーブル
       userPool: userPool, // Cognito User Pool
       userPoolClient: userPoolClient, // Cognito User Pool Client
       MyApiUrl: $interpolate`${api.url}`,

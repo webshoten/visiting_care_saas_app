@@ -9,6 +9,10 @@ declare module "sst" {
       "id": string
       "type": "sst.aws.CognitoUserPool"
     }
+    "CareRecipientTable": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
     "MyApi": {
       "type": "sst.aws.ApiGatewayV2"
       "url": string

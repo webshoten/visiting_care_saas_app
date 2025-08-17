@@ -8,7 +8,36 @@ export type Scalars = {
     Boolean: boolean,
 }
 
+export interface CareRecipient {
+    address: (Scalars['String'] | null)
+    allergies: (Scalars['String'] | null)
+    birthDate: (Scalars['String'] | null)
+    bloodType: (Scalars['String'] | null)
+    createdAt: (Scalars['String'] | null)
+    email: (Scalars['String'] | null)
+    emergencyContactName: (Scalars['String'] | null)
+    emergencyContactPhone: (Scalars['String'] | null)
+    emergencyContactRelation: (Scalars['String'] | null)
+    firstName: (Scalars['String'] | null)
+    firstNameKana: (Scalars['String'] | null)
+    gender: (Scalars['String'] | null)
+    id: (Scalars['String'] | null)
+    lastName: (Scalars['String'] | null)
+    lastNameKana: (Scalars['String'] | null)
+    medicalHistory: (Scalars['String'] | null)
+    medications: (Scalars['String'] | null)
+    phone: (Scalars['String'] | null)
+    updatedAt: (Scalars['String'] | null)
+    __typename: 'CareRecipient'
+}
+
+export interface Mutation {
+    addCareRecipient: (CareRecipient | null)
+    __typename: 'Mutation'
+}
+
 export interface Query {
+    careRecipients: (CareRecipient[] | null)
     hello: (Scalars['String'] | null)
     user: (User | null)
     __typename: 'Query'
@@ -21,7 +50,38 @@ export interface User {
     __typename: 'User'
 }
 
+export interface CareRecipientGenqlSelection{
+    address?: boolean | number
+    allergies?: boolean | number
+    birthDate?: boolean | number
+    bloodType?: boolean | number
+    createdAt?: boolean | number
+    email?: boolean | number
+    emergencyContactName?: boolean | number
+    emergencyContactPhone?: boolean | number
+    emergencyContactRelation?: boolean | number
+    firstName?: boolean | number
+    firstNameKana?: boolean | number
+    gender?: boolean | number
+    id?: boolean | number
+    lastName?: boolean | number
+    lastNameKana?: boolean | number
+    medicalHistory?: boolean | number
+    medications?: boolean | number
+    phone?: boolean | number
+    updatedAt?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+export interface MutationGenqlSelection{
+    addCareRecipient?: (CareRecipientGenqlSelection & { __args: {address?: (Scalars['String'] | null), allergies?: (Scalars['String'] | null), birthDate: Scalars['String'], bloodType: Scalars['String'], email?: (Scalars['String'] | null), emergencyContactName?: (Scalars['String'] | null), emergencyContactPhone?: (Scalars['String'] | null), emergencyContactRelation?: (Scalars['String'] | null), firstName: Scalars['String'], firstNameKana: Scalars['String'], gender: Scalars['String'], lastName: Scalars['String'], lastNameKana: Scalars['String'], medicalHistory?: (Scalars['String'] | null), medications?: (Scalars['String'] | null), notes?: (Scalars['String'] | null), phone: Scalars['String']} })
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
 export interface QueryGenqlSelection{
+    careRecipients?: CareRecipientGenqlSelection
     hello?: boolean | number
     user?: (UserGenqlSelection & { __args: {userId: Scalars['String']} })
     __typename?: boolean | number
@@ -35,6 +95,22 @@ export interface UserGenqlSelection{
     __typename?: boolean | number
     __scalar?: boolean | number
 }
+
+
+    const CareRecipient_possibleTypes: string[] = ['CareRecipient']
+    export const isCareRecipient = (obj?: { __typename?: any } | null): obj is CareRecipient => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isCareRecipient"')
+      return CareRecipient_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const Mutation_possibleTypes: string[] = ['Mutation']
+    export const isMutation = (obj?: { __typename?: any } | null): obj is Mutation => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isMutation"')
+      return Mutation_possibleTypes.includes(obj.__typename)
+    }
+    
 
 
     const Query_possibleTypes: string[] = ['Query']

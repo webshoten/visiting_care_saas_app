@@ -1,7 +1,6 @@
 'use client';
 
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { AddCareRecipientButton } from '@/components/master/AddCareRecipientButton';
 import { ListCareRecipientTable } from '@/components/master/ListCareRecipientTable';
 
 export default function DashboardPage() {

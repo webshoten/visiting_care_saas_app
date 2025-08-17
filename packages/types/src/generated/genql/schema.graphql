@@ -1,4 +1,31 @@
+type CareRecipient {
+  address: String
+  allergies: String
+  birthDate: String
+  bloodType: String
+  createdAt: String
+  email: String
+  emergencyContactName: String
+  emergencyContactPhone: String
+  emergencyContactRelation: String
+  firstName: String
+  firstNameKana: String
+  gender: String
+  id: String
+  lastName: String
+  lastNameKana: String
+  medicalHistory: String
+  medications: String
+  phone: String
+  updatedAt: String
+}
+
+type Mutation {
+  addCareRecipient(address: String, allergies: String, birthDate: String!, bloodType: String!, email: String, emergencyContactName: String, emergencyContactPhone: String, emergencyContactRelation: String, firstName: String!, firstNameKana: String!, gender: String!, lastName: String!, lastNameKana: String!, medicalHistory: String, medications: String, notes: String, phone: String!): CareRecipient
+}
+
 type Query {
+  careRecipients: [CareRecipient!]
   hello: String
   user(userId: String!): User
 }

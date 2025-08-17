@@ -23,8 +23,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useGenQL } from '@/contexts/GenQLContext';
 import { calculateAge } from '@/lib/date';
-import { AddCareRecipientButton } from './AddCareRecipientButton';
+import {
+  AddCareRecipientButton,
+  type CareRecipientFormData,
+} from './AddCareRecipientButton';
 
 export interface TableList {
   id: string;
@@ -34,8 +38,8 @@ export interface TableList {
   phone: string;
   email: string;
   address: string;
-  emergencyContact: string;
-  emergencyPhone: string;
+  emergencyContactName: string;
+  emergencyContactPhone: string;
   allergies: string;
   medicalHistory: string;
   medications: string;
@@ -52,8 +56,8 @@ export const ListCareRecipientTable = () => {
       phone: '090-1234-5678',
       email: 'tanaka@example.com',
       address: '東京都渋谷区1-2-3',
-      emergencyContact: '田中 花子',
-      emergencyPhone: '090-8765-4321',
+      emergencyContactName: '田中 花子',
+      emergencyContactPhone: '090-8765-4321',
       allergies: 'ペニシリン',
       medicalHistory: '高血圧、糖尿病',
       medications: '降圧剤、血糖降下薬',
@@ -66,13 +70,14 @@ export const ListCareRecipientTable = () => {
       phone: '080-9876-5432',
       email: 'sato@example.com',
       address: '東京都新宿区4-5-6',
-      emergencyContact: '佐藤 次郎',
-      emergencyPhone: '080-1111-2222',
+      emergencyContactName: '佐藤 次郎',
+      emergencyContactPhone: '080-1111-2222',
       allergies: 'なし',
       medicalHistory: '関節炎',
       medications: '消炎鎮痛剤',
     },
   });
+  const { client, loading: genqlLoading } = useGenQL();
 
   const toggleExpanded = (id: string) => {
     const newExpanded = new Set(expandedRows);
@@ -92,6 +97,60 @@ export const ListCareRecipientTable = () => {
   const handleDelete = (id: string) => {
     console.log('[v0] Delete care recipient:', id);
     // 削除機能の実装
+  };
+
+  const handleSubmit = async (formData: CareRecipientFormData) => {
+    if (!client || genqlLoading) {
+      return;
+    }
+    if (formData.addId == null) return;
+    const res = await client?.mutation({
+      addCareRecipient: {
+        __args: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          firstNameKana: formData.firstNameKana,
+          lastNameKana: formData.lastNameKana,
+          bloodType: formData.bloodType,
+          gender: formData.gender,
+          birthDate: formData.birthDate,
+          email: formData.email,
+          emergencyContactName: formData.emergencyContactName,
+          emergencyContactRelation: formData.emergencyContactRelation,
+          emergencyContactPhone: formData.emergencyContactPhone,
+          medicalHistory: formData.medicalHistory,
+          medications: formData.medications,
+          phone: formData.phone,
+          address: formData.address,
+          allergies: formData.allergies,
+          notes: formData.notes,
+        },
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        updatedAt: true,
+      },
+    });
+    setTableList((prev) => {
+      return {
+        ...prev,
+        [res?.addCareRecipient?.id ?? '']: {
+          id: formData.addId ?? '',
+          name: `${formData.firstName} ${formData.lastName}`,
+          age: calculateAge(formData.birthDate),
+          gender: formData.gender,
+          phone: formData.phone,
+          email: formData.email,
+          address: formData.address,
+          emergencyContactName: formData.emergencyContactName,
+          emergencyContactPhone: formData.emergencyContactPhone,
+          allergies: formData.allergies ?? '',
+          medicalHistory: formData.medicalHistory,
+          medications: formData.medications,
+        },
+      };
+    });
   };
 
   return (
@@ -117,30 +176,7 @@ export const ListCareRecipientTable = () => {
         <Card>
           <CardHeader>
             <CardTitle>ケア対象者一覧</CardTitle>
-            <AddCareRecipientButton
-              onSubmit={(formData) => {
-                if (formData.addId == null) return;
-                setTableList((prev) => {
-                  return {
-                    ...prev,
-                    [formData.addId ?? '']: {
-                      id: formData.addId ?? '',
-                      name: `${formData.firstName} ${formData.lastName}`,
-                      age: calculateAge(formData.birthDate),
-                      gender: formData.gender,
-                      phone: formData.phone,
-                      email: formData.email,
-                      address: formData.address,
-                      emergencyContact: formData.emergencyContactName,
-                      emergencyPhone: formData.emergencyContactPhone,
-                      allergies: formData.addId ?? '',
-                      medicalHistory: formData.medicalHistory,
-                      medications: formData.medications,
-                    },
-                  };
-                });
-              }}
-            />
+            <AddCareRecipientButton onSubmit={handleSubmit} />
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -252,11 +288,11 @@ export const ListCareRecipientTable = () => {
                                   </h4>
                                   <div className="space-y-1 text-sm">
                                     <p className="font-medium">
-                                      {tableList[id].emergencyContact}
+                                      {tableList[id].emergencyContactName}
                                     </p>
                                     <p className="flex items-center gap-1 text-gray-600">
                                       <Phone className="h-3 w-3" />
-                                      {tableList[id].emergencyPhone}
+                                      {tableList[id].emergencyContactPhone}
                                     </p>
                                   </div>
                                 </div>

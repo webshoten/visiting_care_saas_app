@@ -31,7 +31,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 
-export interface FormData {
+export interface CareRecipientFormData {
   addId: null | string;
   lastName: string;
   firstName: string;
@@ -84,10 +84,11 @@ const initialFormData = {
 export const AddCareRecipientButton = ({
   onSubmit,
 }: {
-  onSubmit: (formData: FormData) => void;
+  onSubmit: (formData: CareRecipientFormData) => void;
 }) => {
   const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState<FormData>(initialFormData);
+  const [formData, setFormData] =
+    useState<CareRecipientFormData>(initialFormData);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
