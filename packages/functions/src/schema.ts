@@ -1,55 +1,15 @@
+// biome-ignore assist/source/organizeImports: <explanation>
 import SchemaBuilder from "@pothos/core";
-import {
-  CareRecipient,
-  type CareRecipientType,
-} from "@visiting_app/core/care-recipient";
 import { docClient } from "@visiting_app/core/dynamo-db";
-import { User, type UserType } from "@visiting_app/core/user";
+import { User } from "@visiting_app/core/user";
+import { CareRecipient } from "@visiting_app/core/care-recipient";
+import { defineUserTypes } from "./types/user";
+import { defineCareRecipientTypes } from "./types/care-recipient";
 
 // Pothos Builderの作成
 export const builder = new SchemaBuilder({});
-
-// GraphQL User型の定義
-export const GraphQLUserType = builder.objectRef<UserType>("User").implement({
-  fields: (t) => ({
-    userId: t.exposeString("userId"),
-    noteId: t.exposeString("noteId"),
-    version: t.exposeString("version"),
-  }),
-});
-
-// GraphQL CareRecipient型の定義
-export const GraphQLCareRecipientType = builder.objectRef<CareRecipientType>(
-  "CareRecipient",
-).implement({
-  fields: (t) => ({
-    id: t.exposeString("id"),
-    firstName: t.exposeString("firstName"),
-    lastName: t.exposeString("lastName"),
-    firstNameKana: t.exposeString("firstNameKana"),
-    lastNameKana: t.exposeString("lastNameKana"),
-    birthDate: t.exposeString("birthDate"),
-    gender: t.exposeString("gender"),
-    bloodType: t.exposeString("bloodType"),
-    phone: t.exposeString("phone"),
-    email: t.exposeString("email", { nullable: true }),
-    address: t.exposeString("address", { nullable: true }),
-    emergencyContactName: t.exposeString("emergencyContactName", {
-      nullable: true,
-    }),
-    emergencyContactRelation: t.exposeString("emergencyContactRelation", {
-      nullable: true,
-    }),
-    emergencyContactPhone: t.exposeString("emergencyContactPhone", {
-      nullable: true,
-    }),
-    allergies: t.exposeString("allergies", { nullable: true }),
-    medicalHistory: t.exposeString("medicalHistory", { nullable: true }),
-    medications: t.exposeString("medications", { nullable: true }),
-    createdAt: t.exposeString("createdAt"),
-    updatedAt: t.exposeString("updatedAt"),
-  }),
-});
+const userTypes = defineUserTypes(builder);
+const careRecipientTypes = defineCareRecipientTypes(builder);
 
 // Query型の定義
 builder.queryType({
@@ -61,7 +21,7 @@ builder.queryType({
         }`,
     }),
     user: t.field({
-      type: GraphQLUserType,
+      type: userTypes.GraphQLUserType,
       args: {
         userId: t.arg.string({ required: true }),
       },
@@ -71,7 +31,7 @@ builder.queryType({
       },
     }),
     careRecipients: t.field({
-      type: [GraphQLCareRecipientType],
+      type: [careRecipientTypes.GraphQLCareRecipientType],
       resolve: async () => {
         return await CareRecipient.getCareRecipients(docClient);
       },
@@ -83,7 +43,7 @@ builder.queryType({
 builder.mutationType({
   fields: (t) => ({
     addCareRecipient: t.field({
-      type: GraphQLCareRecipientType,
+      type: careRecipientTypes.GraphQLCareRecipientType,
       args: {
         firstName: t.arg.string({ required: true }),
         lastName: t.arg.string({ required: true }),
@@ -115,9 +75,12 @@ builder.mutationType({
           phone: args.phone,
           email: args.email ?? undefined,
           address: args.address ?? undefined,
-          emergencyContactName: args.emergencyContactName ?? undefined,
-          emergencyContactRelation: args.emergencyContactRelation ?? undefined,
-          emergencyContactPhone: args.emergencyContactPhone ?? undefined,
+          emergencyContactName: args.emergencyContactName ??
+            undefined,
+          emergencyContactRelation: args.emergencyContactRelation ??
+            undefined,
+          emergencyContactPhone: args.emergencyContactPhone ??
+            undefined,
           allergies: args.allergies ?? undefined,
           medicalHistory: args.medicalHistory ?? undefined,
           medications: args.medications ?? undefined,
@@ -126,7 +89,5 @@ builder.mutationType({
       },
     }),
   }),
-});
-
-// スキーマをエクスポート
+}); // スキーマをエクスポート
 export const schema = builder.toSchema();
