@@ -11,7 +11,7 @@ import {
   Trash2,
   User,
 } from 'lucide-react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,58 +23,58 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { calculateAge } from '@/lib/date';
 import { AddCareRecipientButton } from './AddCareRecipientButton';
 
-// サンプルデータ（実際のアプリケーションではAPIから取得）
-const sampleCareRecipients = [
-  {
-    id: 1,
-    name: '田中 太郎',
-    age: 75,
-    gender: '男性',
-    phone: '090-1234-5678',
-    email: 'tanaka@example.com',
-    address: '東京都渋谷区1-2-3',
-    emergencyContact: '田中 花子',
-    emergencyPhone: '090-8765-4321',
-    allergies: 'ペニシリン',
-    medicalHistory: '高血圧、糖尿病',
-    medications: '降圧剤、血糖降下薬',
-  },
-  {
-    id: 2,
-    name: '佐藤 花子',
-    age: 68,
-    gender: '女性',
-    phone: '080-9876-5432',
-    email: 'sato@example.com',
-    address: '東京都新宿区4-5-6',
-    emergencyContact: '佐藤 次郎',
-    emergencyPhone: '080-1111-2222',
-    allergies: 'なし',
-    medicalHistory: '関節炎',
-    medications: '消炎鎮痛剤',
-  },
-  {
-    id: 3,
-    name: '山田 一郎',
-    age: 82,
-    gender: '男性',
-    phone: '070-5555-6666',
-    email: '',
-    address: '東京都世田谷区7-8-9',
-    emergencyContact: '山田 美子',
-    emergencyPhone: '070-7777-8888',
-    allergies: '卵、牛乳',
-    medicalHistory: '心疾患、認知症初期',
-    medications: '心臓薬、認知症薬',
-  },
-];
+export interface TableList {
+  id: string;
+  name: string;
+  age: number;
+  gender: string;
+  phone: string;
+  email: string;
+  address: string;
+  emergencyContact: string;
+  emergencyPhone: string;
+  allergies: string;
+  medicalHistory: string;
+  medications: string;
+}
 
 export const ListCareRecipientTable = () => {
-  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [tableList, setTableList] = useState<Record<string, TableList>>({
+    a1: {
+      id: 'a1',
+      name: '田中 太郎',
+      age: 75,
+      gender: '男性',
+      phone: '090-1234-5678',
+      email: 'tanaka@example.com',
+      address: '東京都渋谷区1-2-3',
+      emergencyContact: '田中 花子',
+      emergencyPhone: '090-8765-4321',
+      allergies: 'ペニシリン',
+      medicalHistory: '高血圧、糖尿病',
+      medications: '降圧剤、血糖降下薬',
+    },
+    a2: {
+      id: 'a2',
+      name: '佐藤 花子',
+      age: 68,
+      gender: '女性',
+      phone: '080-9876-5432',
+      email: 'sato@example.com',
+      address: '東京都新宿区4-5-6',
+      emergencyContact: '佐藤 次郎',
+      emergencyPhone: '080-1111-2222',
+      allergies: 'なし',
+      medicalHistory: '関節炎',
+      medications: '消炎鎮痛剤',
+    },
+  });
 
-  const toggleExpanded = (id: number) => {
+  const toggleExpanded = (id: string) => {
     const newExpanded = new Set(expandedRows);
     if (newExpanded.has(id)) {
       newExpanded.delete(id);
@@ -84,12 +84,12 @@ export const ListCareRecipientTable = () => {
     setExpandedRows(newExpanded);
   };
 
-  const handleEdit = (id: number) => {
+  const handleEdit = (id: string) => {
     console.log('[v0] Edit care recipient:', id);
     // 編集機能の実装
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     console.log('[v0] Delete care recipient:', id);
     // 削除機能の実装
   };
@@ -98,18 +98,11 @@ export const ListCareRecipientTable = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold text-gray-900">
-          登録済みケア対象者 ({sampleCareRecipients.length}名)
+          登録済みケア対象者 ({Object.keys(tableList).length}名)
         </h2>
-
-        <AddCareRecipientButton
-          onSubmit={(formData) => {
-            console.log(formData);
-            debugger;
-          }}
-        />
       </div>
 
-      {sampleCareRecipients.length === 0 ? (
+      {Object.keys(tableList).length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-gray-500 text-lg">
@@ -124,6 +117,30 @@ export const ListCareRecipientTable = () => {
         <Card>
           <CardHeader>
             <CardTitle>ケア対象者一覧</CardTitle>
+            <AddCareRecipientButton
+              onSubmit={(formData) => {
+                if (formData.addId == null) return;
+                setTableList((prev) => {
+                  return {
+                    ...prev,
+                    [formData.addId ?? '']: {
+                      id: formData.addId ?? '',
+                      name: `${formData.firstName} ${formData.lastName}`,
+                      age: calculateAge(formData.birthDate),
+                      gender: formData.gender,
+                      phone: formData.phone,
+                      email: formData.email,
+                      address: formData.address,
+                      emergencyContact: formData.emergencyContactName,
+                      emergencyPhone: formData.emergencyContactPhone,
+                      allergies: formData.addId ?? '',
+                      medicalHistory: formData.medicalHistory,
+                      medications: formData.medications,
+                    },
+                  };
+                });
+              }}
+            />
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -138,17 +155,17 @@ export const ListCareRecipientTable = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {sampleCareRecipients.map((recipient) => (
-                    <>
-                      <TableRow key={recipient.id} className="hover:bg-gray-50">
+                  {Object.keys(tableList).map((id) => (
+                    <React.Fragment key={id}>
+                      <TableRow key={id} className="hover:bg-gray-50">
                         <TableCell>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => toggleExpanded(recipient.id)}
+                            onClick={() => toggleExpanded(id)}
                             className="p-1 h-8 w-8"
                           >
-                            {expandedRows.has(recipient.id) ? (
+                            {expandedRows.has(id) ? (
                               <ChevronDown className="h-4 w-4" />
                             ) : (
                               <ChevronRight className="h-4 w-4" />
@@ -160,7 +177,7 @@ export const ListCareRecipientTable = () => {
                           <div className="flex items-center gap-2">
                             <User className="h-4 w-4 text-gray-400" />
                             <span className="font-semibold text-gray-900">
-                              {recipient.name}
+                              {tableList[id].name}
                             </span>
                           </div>
                         </TableCell>
@@ -168,10 +185,10 @@ export const ListCareRecipientTable = () => {
                         <TableCell>
                           <div className="flex gap-2">
                             <Badge variant="secondary" className="text-xs">
-                              {recipient.age}歳
+                              {tableList[id].age}歳
                             </Badge>
                             <Badge variant="outline" className="text-xs">
-                              {recipient.gender}
+                              {tableList[id].gender}
                             </Badge>
                           </div>
                         </TableCell>
@@ -179,7 +196,7 @@ export const ListCareRecipientTable = () => {
                         <TableCell>
                           <div className="flex items-center gap-1 text-sm">
                             <Phone className="h-3 w-3 text-gray-400" />
-                            {recipient.phone}
+                            {tableList[id].phone}
                           </div>
                         </TableCell>
 
@@ -188,14 +205,14 @@ export const ListCareRecipientTable = () => {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => handleEdit(recipient.id)}
+                              onClick={() => handleEdit(id)}
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => handleDelete(recipient.id)}
+                              onClick={() => handleDelete(id)}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -203,7 +220,7 @@ export const ListCareRecipientTable = () => {
                         </TableCell>
                       </TableRow>
 
-                      {expandedRows.has(recipient.id) && (
+                      {expandedRows.has(id) && (
                         <TableRow>
                           <TableCell colSpan={5} className="bg-gray-50 p-0">
                             <div className="p-4 space-y-4">
@@ -215,15 +232,15 @@ export const ListCareRecipientTable = () => {
                                     連絡先情報
                                   </h4>
                                   <div className="space-y-1 text-sm">
-                                    {recipient.email && (
+                                    {tableList[id].email && (
                                       <p className="flex items-center gap-1">
                                         <Mail className="h-3 w-3 text-gray-400" />
-                                        {recipient.email}
+                                        {tableList[id].email}
                                       </p>
                                     )}
                                     <p className="flex items-center gap-1">
                                       <MapPin className="h-3 w-3 text-gray-400" />
-                                      {recipient.address}
+                                      {tableList[id].address}
                                     </p>
                                   </div>
                                 </div>
@@ -235,11 +252,11 @@ export const ListCareRecipientTable = () => {
                                   </h4>
                                   <div className="space-y-1 text-sm">
                                     <p className="font-medium">
-                                      {recipient.emergencyContact}
+                                      {tableList[id].emergencyContact}
                                     </p>
                                     <p className="flex items-center gap-1 text-gray-600">
                                       <Phone className="h-3 w-3" />
-                                      {recipient.emergencyPhone}
+                                      {tableList[id].emergencyPhone}
                                     </p>
                                   </div>
                                 </div>
@@ -251,29 +268,29 @@ export const ListCareRecipientTable = () => {
                                     医療情報
                                   </h4>
                                   <div className="space-y-1 text-sm">
-                                    {recipient.allergies &&
-                                      recipient.allergies !== 'なし' && (
+                                    {tableList[id].allergies &&
+                                      tableList[id].allergies !== 'なし' && (
                                         <p className="text-red-600">
                                           <span className="font-medium">
                                             アレルギー:
                                           </span>{' '}
-                                          {recipient.allergies}
+                                          {tableList[id].allergies}
                                         </p>
                                       )}
-                                    {recipient.medicalHistory && (
+                                    {tableList[id].medicalHistory && (
                                       <p className="text-gray-600">
                                         <span className="font-medium">
                                           既往歴:
                                         </span>{' '}
-                                        {recipient.medicalHistory}
+                                        {tableList[id].medicalHistory}
                                       </p>
                                     )}
-                                    {recipient.medications && (
+                                    {tableList[id].medications && (
                                       <p className="text-gray-600">
                                         <span className="font-medium">
                                           服薬:
                                         </span>{' '}
-                                        {recipient.medications}
+                                        {tableList[id].medications}
                                       </p>
                                     )}
                                   </div>
@@ -283,7 +300,7 @@ export const ListCareRecipientTable = () => {
                           </TableCell>
                         </TableRow>
                       )}
-                    </>
+                    </React.Fragment>
                   ))}
                 </TableBody>
               </Table>
