@@ -164,7 +164,8 @@ export default $config({
       environment: {
         // Cognito設定を環境変数として設定
         NEXT_PUBLIC_AUTH_USER_POOL_ID: $interpolate`${userPool.id}`, // User Pool ID
-        NEXT_PUBLIC_AUTH_USER_POOL_CLIENT_ID: $interpolate`${userPoolClient.id}`, // Client ID
+        NEXT_PUBLIC_AUTH_USER_POOL_CLIENT_ID:
+          $interpolate`${userPoolClient.id}`, // Client ID
         NEXT_PUBLIC_API_URL: $interpolate`${api.url}`, // API URL
       },
       link: [api, userPool], // API GatewayとUser Poolとの連携
@@ -189,6 +190,7 @@ export default $config({
       MyTable: table, // DynamoDBテーブル
       userPool: userPool, // Cognito User Pool
       userPoolClient: userPoolClient, // Cognito User Pool Client
+      MyApiUrl: $interpolate`${api.url}`,
     };
   },
 });

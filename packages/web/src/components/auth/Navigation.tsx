@@ -7,11 +7,11 @@
  * - レスポンシブデザイン対応
  */
 
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useToken } from "@/contexts/TokenContext";
-import { SignInButton, SignOutButton } from "./AuthButton";
+import Link from 'next/link';
+import { useToken } from '@/contexts/TokenContext';
+import { SignInButton, SignOutButton } from './AuthButton';
 
 /**
  * ナビゲーションコンポーネント
@@ -37,6 +37,12 @@ export const Navigation: React.FC = () => {
         className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
       >
         ダッシュボード
+      </Link>
+      <Link
+        href="/master"
+        className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+      >
+        マスター
       </Link>
       <Link
         href="/profile"

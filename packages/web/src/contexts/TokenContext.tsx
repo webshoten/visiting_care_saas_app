@@ -7,7 +7,7 @@
  * - 認証状態の永続化
  */
 
-"use client";
+'use client';
 
 import {
   createContext,
@@ -16,7 +16,7 @@ import {
   useContext,
   useEffect,
   useState,
-} from "react";
+} from 'react';
 
 /**
  * トークンコンテキストの型定義
@@ -46,19 +46,20 @@ export const TokenProvider = ({ children }: { children: ReactNode }) => {
   const checkAuth = useCallback(async (): Promise<boolean> => {
     try {
       setLoading(true);
-      const response = await fetch("/api/auth/token", {
-        credentials: "include",
+      const response = await fetch('/api/auth/token', {
+        credentials: 'include',
       });
 
       if (response.ok) {
         setIsAuthenticated(true);
         return true;
+        // biome-ignore lint/style/noUselessElse: <explanation>
       } else {
         setIsAuthenticated(false);
         return false;
       }
     } catch (error) {
-      console.error("Auth check failed:", error);
+      console.error('Auth check failed:', error);
       setIsAuthenticated(false);
       return false;
     } finally {
@@ -76,20 +77,19 @@ export const TokenProvider = ({ children }: { children: ReactNode }) => {
    */
   const getToken = async (): Promise<string | null> => {
     try {
-      const response = await fetch("/api/auth/token", {
-        credentials: "include",
+      const response = await fetch('/api/auth/token', {
+        credentials: 'include',
       });
 
       if (response.ok) {
         const data = await response.json();
         setIsAuthenticated(true);
         return data.accessToken;
-      } else {
-        setIsAuthenticated(false);
-        return null;
       }
+      setIsAuthenticated(false);
+      return null;
     } catch (error) {
-      console.error("Token retrieval failed:", error);
+      console.error('Token retrieval failed:', error);
       setIsAuthenticated(false);
       return null;
     }
@@ -101,17 +101,17 @@ export const TokenProvider = ({ children }: { children: ReactNode }) => {
   const clearAuth = async () => {
     try {
       // サインアウトAPIを呼び出してCookieをクリア
-      await fetch("/api/auth/signout", {
-        method: "POST",
-        credentials: "include",
+      await fetch('/api/auth/signout', {
+        method: 'POST',
+        credentials: 'include',
       });
     } catch (error) {
-      console.error("Signout API error:", error);
+      console.error('Signout API error:', error);
     }
-    
+
     setIsAuthenticated(false);
     // サインインページにリダイレクト
-    window.location.href = "/signin";
+    window.location.href = '/signin';
   };
 
   return (
@@ -132,7 +132,7 @@ export const TokenProvider = ({ children }: { children: ReactNode }) => {
 export const useToken = () => {
   const context = useContext(TokenContext);
   if (context === undefined) {
-    throw new Error("useToken must be used within a TokenProvider");
+    throw new Error('useToken must be used within a TokenProvider');
   }
   return context;
 };

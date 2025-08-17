@@ -16,16 +16,17 @@ import { DatePicker } from '../common/DatePicker';
 export default function CreateScheduleDialog({
   open = false,
   onOpenChange = (_: boolean) => {},
-  onCreate = (_: { id: string; time: string }) => {},
+  onCreate = (_: { id: string; date: Date; time: string }) => {},
 }) {
   const [date, setDate] = useState<Date>();
   const [time, setTime] = useState('09:00');
 
   function handleCreate() {
-    if (!time) return;
+    if (!time || !date) return;
     const id = `B${Math.floor(100 + Math.random() * 900)}`;
     onCreate({
       id,
+      date,
       time,
     });
   }
@@ -38,15 +39,19 @@ export default function CreateScheduleDialog({
         </DialogHeader>
         <div className="grid gap-4 py-2">
           <div className="grid grid-cols-3 items-center gap-3">
+            <Label htmlFor="time" className="text-right">
+              日付を選択
+            </Label>
             <DatePicker
               date={date}
               onDateChange={setDate}
               placeholder="日付を選択してください"
+              className="col-span-2"
             />
           </div>
           <div className="grid grid-cols-3 items-center gap-3">
             <Label htmlFor="time" className="text-right">
-              時間
+              時間を選択
             </Label>
             <Input
               id="time"
@@ -64,7 +69,7 @@ export default function CreateScheduleDialog({
           <Button
             className="bg-emerald-600 text-white hover:bg-emerald-600/90"
             onClick={handleCreate}
-            disabled={!time}
+            disabled={!time || !date}
           >
             追加
           </Button>
