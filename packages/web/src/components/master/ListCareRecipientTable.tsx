@@ -11,7 +11,8 @@ import {
   Trash2,
   User,
 } from 'lucide-react';
-import React, { use, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useClient } from 'urql';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,8 +24,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useGenQL } from '@/contexts/GenQLContext';
 import { calculateAge } from '@/lib/date';
+import { executeTypedMutation, useTypedQuery } from '@/lib/genql-urql-bridge';
 import {
   AddCareRecipientButton,
   type CareRecipientFormData,
@@ -47,139 +48,152 @@ export interface TableList {
 
 export const ListCareRecipientTable = () => {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
-  const [tableList, setTableList] = useState<Record<string, TableList>>({
-  });
-  const { client, loading: genqlLoading } = useGenQL();
+  const [tableList, setTableList] = useState<Record<string, TableList>>({});
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  useEffect(() => {
-    if (!client || genqlLoading) {
-      return;
-    }
-    (async () => {
-      const res = await client.query({
-        listCareRecipients: {
-          __args: {
-            limit: 20,
-          },
-          items: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            birthDate: true,
-            gender: true,
-            phone: true,
-            email: true,
-            address: true,
-            emergencyContactName: true,
-            emergencyContactPhone: true,
-            allergies: true,
-            medicalHistory: true,
-            medications: true,
-          },
-          nextToken: true,
+  type ApiCareRecipient = {
+    id: string | null | undefined;
+    firstName: string | null | undefined;
+    lastName: string | null | undefined;
+    birthDate: string | null | undefined;
+    gender: string | null | undefined;
+    phone: string | null | undefined;
+    email: string | null | undefined;
+    address: string | null | undefined;
+    emergencyContactName: string | null | undefined;
+    emergencyContactPhone: string | null | undefined;
+    allergies: string | null | undefined;
+    medicalHistory: string | null | undefined;
+    medications: string | null | undefined;
+  };
+
+  const [{ data, fetching }] = useTypedQuery({
+    query: {
+      listCareRecipients: {
+        __args: { limit: 20, nextToken: null },
+        items: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          birthDate: true,
+          gender: true,
+          phone: true,
+          email: true,
+          address: true,
+          emergencyContactName: true,
+          emergencyContactPhone: true,
+          allergies: true,
+          medicalHistory: true,
+          medications: true,
         },
-      });
+        nextToken: true,
+      },
+    },
+  });
 
-      const items = res?.listCareRecipients?.items ?? [];
-      const map = items.reduce<Record<string, TableList>>((acc, it) => {
+  useEffect(() => {
+    if (fetching || !data) return;
+
+    const raw = (data.listCareRecipients?.items ?? []) as ApiCareRecipient[];
+    const items = raw.filter(Boolean) as ApiCareRecipient[];
+    if (!items.length) return;
+
+    const map = items.reduce(
+      (acc: Record<string, TableList>, it: ApiCareRecipient) => {
         if (!it?.id) return acc;
         acc[it.id] = {
           id: it.id,
-          name: `${it.firstName ?? ""} ${it.lastName ?? ""}`.trim(),
+          name: `${it.firstName ?? ''} ${it.lastName ?? ''}`.trim(),
           age: it.birthDate ? calculateAge(it.birthDate) : 0,
-          gender: typeof it.gender === "string" ? it.gender : "",
-          phone: it.phone ?? "",
-          email: it.email ?? "",
-          address: it.address ?? "",
-          emergencyContactName: it.emergencyContactName ?? "",
-          emergencyContactPhone: it.emergencyContactPhone ?? "",
-          allergies: it.allergies ?? "",
-          medicalHistory: it.medicalHistory ?? "",
-          medications: it.medications ?? "",
+          gender: typeof it.gender === 'string' ? it.gender : '',
+          phone: it.phone ?? '',
+          email: it.email ?? '',
+          address: it.address ?? '',
+          emergencyContactName: it.emergencyContactName ?? '',
+          emergencyContactPhone: it.emergencyContactPhone ?? '',
+          allergies: it.allergies ?? '',
+          medicalHistory: it.medicalHistory ?? '',
+          medications: it.medications ?? '',
         };
         return acc;
-      }, {});
+      },
+      {} as Record<string, TableList>,
+    );
+    setTableList((prev) => ({ ...prev, ...map }));
+  }, [data, fetching]);
 
-      setTableList((prev) => ({
-        ...prev,
-        ...map,
-      }));
-    })();
-  }, [client]);
+  // urql + GenQL bridge mutation
+
+  // AddCareRecipient の入力は handleSubmit 内で直接指定
+
+  const urqlClient = useClient();
 
   const toggleExpanded = (id: string) => {
     const newExpanded = new Set(expandedRows);
-    if (newExpanded.has(id)) {
-      newExpanded.delete(id);
-    } else {
-      newExpanded.add(id);
-    }
+    if (newExpanded.has(id)) newExpanded.delete(id);
+    else newExpanded.add(id);
     setExpandedRows(newExpanded);
   };
 
   const handleEdit = (id: string) => {
     console.log('[v0] Edit care recipient:', id);
-    // 編集機能の実装
   };
 
   const handleDelete = (id: string) => {
     console.log('[v0] Delete care recipient:', id);
-    // 削除機能の実装
   };
 
   const handleSubmit = async (formData: CareRecipientFormData) => {
-    if (!client || genqlLoading) {
-      return;
-    }
     if (formData.addId == null) return;
-    const res = await client?.mutation({
-      addCareRecipient: {
-        __args: {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          firstNameKana: formData.firstNameKana,
-          lastNameKana: formData.lastNameKana,
-          bloodType: formData.bloodType,
-          gender: formData.gender,
-          birthDate: formData.birthDate,
-          email: formData.email,
-          emergencyContactName: formData.emergencyContactName,
-          emergencyContactRelation: formData.emergencyContactRelation,
-          emergencyContactPhone: formData.emergencyContactPhone,
-          medicalHistory: formData.medicalHistory,
-          medications: formData.medications,
-          phone: formData.phone,
-          address: formData.address,
-          allergies: formData.allergies,
-          notes: formData.notes,
+    const created = (
+      await executeTypedMutation(urqlClient, {
+        addCareRecipient: {
+          __args: {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            firstNameKana: formData.firstNameKana,
+            lastNameKana: formData.lastNameKana,
+            bloodType: formData.bloodType,
+            gender: formData.gender,
+            birthDate: formData.birthDate,
+            email: formData.email ?? undefined,
+            emergencyContactName: formData.emergencyContactName ?? undefined,
+            emergencyContactRelation:
+              formData.emergencyContactRelation ?? undefined,
+            emergencyContactPhone: formData.emergencyContactPhone ?? undefined,
+            medicalHistory: formData.medicalHistory ?? undefined,
+            medications: formData.medications ?? undefined,
+            phone: formData.phone,
+            address: formData.address ?? undefined,
+            allergies: formData.allergies ?? undefined,
+            notes: formData.notes ?? undefined,
+          },
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          updatedAt: true,
         },
-        id: true,
-        firstName: true,
-        lastName: true,
-        email: true,
-        updatedAt: true,
+      })
+    ).data?.addCareRecipient;
+    if (!created?.id) return;
+
+    setTableList((prev) => ({
+      ...prev,
+      [created?.id as string]: {
+        id: created?.id as string,
+        name: `${created.firstName ?? ''} ${created.lastName ?? ''}`.trim(),
+        age: calculateAge(formData.birthDate),
+        gender: formData.gender,
+        phone: formData.phone,
+        email: formData.email,
+        address: formData.address,
+        emergencyContactName: formData.emergencyContactName ?? '',
+        emergencyContactPhone: formData.emergencyContactPhone ?? '',
+        allergies: formData.allergies ?? '',
+        medicalHistory: formData.medicalHistory ?? '',
+        medications: formData.medications ?? '',
       },
-    });
-    setTableList((prev) => {
-      return {
-        ...prev,
-        [res?.addCareRecipient?.id ?? '']: {
-          id: formData.addId ?? '',
-          name: `${formData.firstName} ${formData.lastName}`,
-          age: calculateAge(formData.birthDate),
-          gender: formData.gender,
-          phone: formData.phone,
-          email: formData.email,
-          address: formData.address,
-          emergencyContactName: formData.emergencyContactName,
-          emergencyContactPhone: formData.emergencyContactPhone,
-          allergies: formData.allergies ?? '',
-          medicalHistory: formData.medicalHistory,
-          medications: formData.medications,
-        },
-      };
-    });
+    }));
   };
 
   return (

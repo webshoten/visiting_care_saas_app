@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "generate-schema": "tsx scripts/generate-schema.ts",
-    "generate-genql": "tsx scripts/generate-genql.ts",
+    "generate-genql": "node -e \"require('fs').writeFileSync('../types/src/generated/genql/schema.graphql', require('fs').readFileSync('./src/graphql/schema.graphql'))\" && npx @genql/cli --output ../types/src/generated/genql --schema ../types/src/generated/genql/schema.graphql --esm",
     "watch": "nodemon --watch src --ext ts,tsx --exec 'npm run generate-schema && npm run generate-genql'"
   },
   "dependencies": {

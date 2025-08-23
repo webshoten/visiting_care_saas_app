@@ -1,15 +1,16 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { Navigation } from "@/components/auth/Navigation";
-import { GenQLProvider } from "@/contexts/GenQLContext";
-import { TokenProvider } from "@/contexts/TokenContext";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { Navigation } from '@/components/auth/Navigation';
+import { GenQLProvider } from '@/contexts/GenQLContext';
+import { TokenProvider } from '@/contexts/TokenContext';
+import UrqlProvider from '@/contexts/UrqlProvider';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "Next.js + SST + Cognito",
-  description: "認証機能付きのWebアプリケーション",
+  title: 'Next.js + SST + Cognito',
+  description: '認証機能付きのWebアプリケーション',
 };
 
 export default function RootLayout({
@@ -22,7 +23,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <TokenProvider>
           <Navigation />
-          <GenQLProvider>{children}</GenQLProvider>
+          <UrqlProvider>
+            <GenQLProvider>{children}</GenQLProvider>
+          </UrqlProvider>
         </TokenProvider>
       </body>
     </html>
