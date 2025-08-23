@@ -20,13 +20,18 @@ type CareRecipient {
   updatedAt: String
 }
 
+type CareRecipientPage {
+  items: [CareRecipient!]
+  nextToken: String
+}
+
 type Mutation {
   addCareRecipient(address: String, allergies: String, birthDate: String!, bloodType: String!, email: String, emergencyContactName: String, emergencyContactPhone: String, emergencyContactRelation: String, firstName: String!, firstNameKana: String!, gender: String!, lastName: String!, lastNameKana: String!, medicalHistory: String, medications: String, notes: String, phone: String!): CareRecipient
 }
 
 type Query {
-  careRecipients: [CareRecipient!]
   hello: String
+  listCareRecipients(limit: Int, nextToken: String): CareRecipientPage
   user(userId: String!): User
 }
 

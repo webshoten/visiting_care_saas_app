@@ -1,4 +1,7 @@
-import type { CareRecipientType } from "@visiting_app/core/care-recipient";
+import type {
+    CareRecipientPage,
+    CareRecipientType,
+} from "@visiting_app/core/care-recipient";
 
 // GraphQL CareRecipient型の定義
 export function defineCareRecipientTypes(
@@ -43,7 +46,21 @@ export function defineCareRecipientTypes(
         }),
     });
 
+    // ページ型（items + nextToken）
+    const GraphQLCareRecipientPageType = builder.objectRef<CareRecipientPage>(
+        "CareRecipientPage",
+    ).implement({
+        fields: (t) => ({
+            items: t.field({
+                type: [GraphQLCareRecipientType] as const,
+                resolve: (p) => p.items,
+            }),
+            nextToken: t.exposeString("nextToken", { nullable: true }),
+        }),
+    });
+
     return {
         GraphQLCareRecipientType,
+        GraphQLCareRecipientPageType,
     };
 }

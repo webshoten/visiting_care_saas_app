@@ -5,6 +5,7 @@
 
 export type Scalars = {
     String: string,
+    Int: number,
     Boolean: boolean,
 }
 
@@ -31,14 +32,20 @@ export interface CareRecipient {
     __typename: 'CareRecipient'
 }
 
+export interface CareRecipientPage {
+    items: (CareRecipient[] | null)
+    nextToken: (Scalars['String'] | null)
+    __typename: 'CareRecipientPage'
+}
+
 export interface Mutation {
     addCareRecipient: (CareRecipient | null)
     __typename: 'Mutation'
 }
 
 export interface Query {
-    careRecipients: (CareRecipient[] | null)
     hello: (Scalars['String'] | null)
+    listCareRecipients: (CareRecipientPage | null)
     user: (User | null)
     __typename: 'Query'
 }
@@ -74,6 +81,13 @@ export interface CareRecipientGenqlSelection{
     __scalar?: boolean | number
 }
 
+export interface CareRecipientPageGenqlSelection{
+    items?: CareRecipientGenqlSelection
+    nextToken?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
 export interface MutationGenqlSelection{
     addCareRecipient?: (CareRecipientGenqlSelection & { __args: {address?: (Scalars['String'] | null), allergies?: (Scalars['String'] | null), birthDate: Scalars['String'], bloodType: Scalars['String'], email?: (Scalars['String'] | null), emergencyContactName?: (Scalars['String'] | null), emergencyContactPhone?: (Scalars['String'] | null), emergencyContactRelation?: (Scalars['String'] | null), firstName: Scalars['String'], firstNameKana: Scalars['String'], gender: Scalars['String'], lastName: Scalars['String'], lastNameKana: Scalars['String'], medicalHistory?: (Scalars['String'] | null), medications?: (Scalars['String'] | null), notes?: (Scalars['String'] | null), phone: Scalars['String']} })
     __typename?: boolean | number
@@ -81,8 +95,8 @@ export interface MutationGenqlSelection{
 }
 
 export interface QueryGenqlSelection{
-    careRecipients?: CareRecipientGenqlSelection
     hello?: boolean | number
+    listCareRecipients?: (CareRecipientPageGenqlSelection & { __args?: {limit?: (Scalars['Int'] | null), nextToken?: (Scalars['String'] | null)} })
     user?: (UserGenqlSelection & { __args: {userId: Scalars['String']} })
     __typename?: boolean | number
     __scalar?: boolean | number
@@ -101,6 +115,14 @@ export interface UserGenqlSelection{
     export const isCareRecipient = (obj?: { __typename?: any } | null): obj is CareRecipient => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isCareRecipient"')
       return CareRecipient_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const CareRecipientPage_possibleTypes: string[] = ['CareRecipientPage']
+    export const isCareRecipientPage = (obj?: { __typename?: any } | null): obj is CareRecipientPage => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isCareRecipientPage"')
+      return CareRecipientPage_possibleTypes.includes(obj.__typename)
     }
     
 

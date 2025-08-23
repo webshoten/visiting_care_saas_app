@@ -1,7 +1,8 @@
 export default {
     "scalars": [
         1,
-        5
+        5,
+        7
     ],
     "types": {
         "CareRecipient": {
@@ -67,6 +68,17 @@ export default {
             ]
         },
         "String": {},
+        "CareRecipientPage": {
+            "items": [
+                0
+            ],
+            "nextToken": [
+                1
+            ],
+            "__typename": [
+                1
+            ]
+        },
         "Mutation": {
             "addCareRecipient": [
                 0,
@@ -137,14 +149,22 @@ export default {
             ]
         },
         "Query": {
-            "careRecipients": [
-                0
-            ],
             "hello": [
                 1
             ],
+            "listCareRecipients": [
+                2,
+                {
+                    "limit": [
+                        5
+                    ],
+                    "nextToken": [
+                        1
+                    ]
+                }
+            ],
             "user": [
-                4,
+                6,
                 {
                     "userId": [
                         1,
@@ -156,6 +176,7 @@ export default {
                 1
             ]
         },
+        "Int": {},
         "User": {
             "noteId": [
                 1

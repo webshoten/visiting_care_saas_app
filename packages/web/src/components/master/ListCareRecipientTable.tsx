@@ -11,7 +11,7 @@ import {
   Trash2,
   User,
 } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -48,36 +48,65 @@ export interface TableList {
 export const ListCareRecipientTable = () => {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [tableList, setTableList] = useState<Record<string, TableList>>({
-    a1: {
-      id: 'a1',
-      name: '田中 太郎',
-      age: 75,
-      gender: '男性',
-      phone: '090-1234-5678',
-      email: 'tanaka@example.com',
-      address: '東京都渋谷区1-2-3',
-      emergencyContactName: '田中 花子',
-      emergencyContactPhone: '090-8765-4321',
-      allergies: 'ペニシリン',
-      medicalHistory: '高血圧、糖尿病',
-      medications: '降圧剤、血糖降下薬',
-    },
-    a2: {
-      id: 'a2',
-      name: '佐藤 花子',
-      age: 68,
-      gender: '女性',
-      phone: '080-9876-5432',
-      email: 'sato@example.com',
-      address: '東京都新宿区4-5-6',
-      emergencyContactName: '佐藤 次郎',
-      emergencyContactPhone: '080-1111-2222',
-      allergies: 'なし',
-      medicalHistory: '関節炎',
-      medications: '消炎鎮痛剤',
-    },
   });
   const { client, loading: genqlLoading } = useGenQL();
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    if (!client || genqlLoading) {
+      return;
+    }
+    (async () => {
+      const res = await client.query({
+        listCareRecipients: {
+          __args: {
+            limit: 20,
+          },
+          items: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            birthDate: true,
+            gender: true,
+            phone: true,
+            email: true,
+            address: true,
+            emergencyContactName: true,
+            emergencyContactPhone: true,
+            allergies: true,
+            medicalHistory: true,
+            medications: true,
+          },
+          nextToken: true,
+        },
+      });
+
+      const items = res?.listCareRecipients?.items ?? [];
+      const map = items.reduce<Record<string, TableList>>((acc, it) => {
+        if (!it?.id) return acc;
+        acc[it.id] = {
+          id: it.id,
+          name: `${it.firstName ?? ""} ${it.lastName ?? ""}`.trim(),
+          age: it.birthDate ? calculateAge(it.birthDate) : 0,
+          gender: typeof it.gender === "string" ? it.gender : "",
+          phone: it.phone ?? "",
+          email: it.email ?? "",
+          address: it.address ?? "",
+          emergencyContactName: it.emergencyContactName ?? "",
+          emergencyContactPhone: it.emergencyContactPhone ?? "",
+          allergies: it.allergies ?? "",
+          medicalHistory: it.medicalHistory ?? "",
+          medications: it.medications ?? "",
+        };
+        return acc;
+      }, {});
+
+      setTableList((prev) => ({
+        ...prev,
+        ...map,
+      }));
+    })();
+  }, [client]);
 
   const toggleExpanded = (id: string) => {
     const newExpanded = new Set(expandedRows);
@@ -224,7 +253,9 @@ export const ListCareRecipientTable = () => {
                               {tableList[id].age}歳
                             </Badge>
                             <Badge variant="outline" className="text-xs">
-                              {tableList[id].gender}
+                              {tableList[id].gender === 'male'
+                                ? '男性'
+                                : '女性'}
                             </Badge>
                           </div>
                         </TableCell>

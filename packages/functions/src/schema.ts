@@ -30,10 +30,17 @@ builder.queryType({
         return users[0];
       },
     }),
-    careRecipients: t.field({
-      type: [careRecipientTypes.GraphQLCareRecipientType],
-      resolve: async () => {
-        return await CareRecipient.getCareRecipients(docClient);
+    listCareRecipients: t.field({
+      type: careRecipientTypes.GraphQLCareRecipientPageType,
+      args: {
+        limit: t.arg.int({ required: false }),
+        nextToken: t.arg.string({ required: false }),
+      },
+      resolve: async (_, { limit, nextToken }) => {
+        return await CareRecipient.listCareRecipients(docClient, {
+          limit: limit ?? undefined,
+          nextToken: nextToken ?? undefined,
+        });
       },
     }),
   }),
