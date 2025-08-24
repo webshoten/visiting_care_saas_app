@@ -262,9 +262,7 @@ export const ListCareRecipientTable = () => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold text-gray-900">
-          ケア対象者 ({Object.keys(tableList).length}名)
-        </h2>
+        <h2 className="text-2xl font-semibold text-gray-900">ケア対象者</h2>
       </div>
 
       {Object.keys(tableList).length === 0 ? (
