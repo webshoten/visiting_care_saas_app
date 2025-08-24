@@ -49,6 +49,19 @@ export interface TableList {
 export const ListCareRecipientTable = () => {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [tableList, setTableList] = useState<Record<string, TableList>>({});
+  const PAGE_SIZE = 5; // 1カ所で件数変更可能
+
+  const [pages, setPages] = useState<
+    { items: ApiCareRecipient[]; nextToken: string | null }[]
+  >([]);
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
+  const [tokenForFetch, setTokenForFetch] = useState<string | null>(null);
+  const lastAppendedKeyRef = React.useRef<string | null>(null);
+  const tokenKeyConst = '__FIRST__';
+  const getTokenKey = React.useCallback(
+    (t: string | null) => (t == null ? tokenKeyConst : t),
+    [],
+  );
 
   type ApiCareRecipient = {
     id: string | null | undefined;
@@ -69,7 +82,7 @@ export const ListCareRecipientTable = () => {
   const [{ data, fetching }] = useTypedQuery({
     query: {
       listCareRecipients: {
-        __args: { limit: 20, nextToken: null },
+        __args: { limit: PAGE_SIZE, nextToken: tokenForFetch },
         items: {
           id: true,
           firstName: true,
@@ -88,15 +101,46 @@ export const ListCareRecipientTable = () => {
         nextToken: true,
       },
     },
+    requestPolicy: 'network-only',
   });
 
+  // デバッグ: レンダリング状況
+  console.log('render', {
+    pageIndex: currentPageIndex,
+    pages: pages.length,
+    tokenForFetch,
+    fetching,
+  });
+
+  // フェッチ完了時にページを追加（同一トークンの二重追加をRefで即時ガード）
   useEffect(() => {
     if (fetching || !data) return;
 
-    const raw = (data.listCareRecipients?.items ?? []) as ApiCareRecipient[];
-    const items = raw.filter(Boolean) as ApiCareRecipient[];
-    if (!items.length) return;
+    console.log('getTokenKey', getTokenKey(tokenForFetch));
 
+    const raw = (data.listCareRecipients?.items ?? []) as ApiCareRecipient[];
+    const items = (raw.filter(Boolean) as ApiCareRecipient[]) ?? [];
+    const next = data.listCareRecipients?.nextToken ?? null;
+    const key = getTokenKey(tokenForFetch);
+    if (lastAppendedKeyRef.current === key) return;
+    setPages((prevPages) => {
+      const newPages = [...prevPages, { items, nextToken: next }];
+      console.log('append', {
+        key,
+        appendedLength: newPages.length,
+        nextToken: next,
+      });
+      setCurrentPageIndex(newPages.length - 1);
+      lastAppendedKeyRef.current = key;
+      return newPages;
+    });
+  }, [data, fetching, tokenForFetch, getTokenKey]);
+
+  // 現在ページのitemsからテーブル表示データを構築（置換）
+  useEffect(() => {
+    const page = pages[currentPageIndex];
+    if (!page) return;
+    const items = page.items ?? [];
     const map = items.reduce(
       (acc: Record<string, TableList>, it: ApiCareRecipient) => {
         if (!it?.id) return acc;
@@ -118,8 +162,38 @@ export const ListCareRecipientTable = () => {
       },
       {} as Record<string, TableList>,
     );
-    setTableList((prev) => ({ ...prev, ...map }));
-  }, [data, fetching]);
+    setTableList(map);
+  }, [pages, currentPageIndex]);
+
+  // ページ移動ハンドラ
+  const goPrev = () => {
+    if (fetching) return;
+    if (currentPageIndex === 0) return;
+    console.log('prev', { pageIndex: currentPageIndex, pages: pages.length });
+    setCurrentPageIndex((i) => i - 1);
+  };
+
+  const goNext = () => {
+    if (fetching) return;
+    // 既取得ページがある場合はインデックスを進める
+    if (currentPageIndex < pages.length - 1) {
+      console.log('next (cached)', {
+        pageIndex: currentPageIndex,
+        pages: pages.length,
+      });
+      setCurrentPageIndex((i) => i + 1);
+      return;
+    }
+    // 未取得 → 現在ページのnextTokenで取得
+    const token = pages[currentPageIndex]?.nextToken ?? null;
+    if (!token) return;
+    console.log('next (fetch)', {
+      pageIndex: currentPageIndex,
+      pages: pages.length,
+      token,
+    });
+    setTokenForFetch(token);
+  };
 
   // urql + GenQL bridge mutation
 
@@ -177,23 +251,12 @@ export const ListCareRecipientTable = () => {
     ).data?.addCareRecipient;
     if (!created?.id) return;
 
-    setTableList((prev) => ({
-      ...prev,
-      [created?.id as string]: {
-        id: created?.id as string,
-        name: `${created.firstName ?? ''} ${created.lastName ?? ''}`.trim(),
-        age: calculateAge(formData.birthDate),
-        gender: formData.gender,
-        phone: formData.phone,
-        email: formData.email,
-        address: formData.address,
-        emergencyContactName: formData.emergencyContactName ?? '',
-        emergencyContactPhone: formData.emergencyContactPhone ?? '',
-        allergies: formData.allergies ?? '',
-        medicalHistory: formData.medicalHistory ?? '',
-        medications: formData.medications ?? '',
-      },
-    }));
+    // 追加後は1ページ目から再取得（ページサイズ制約の整合性維持）
+    setPages([]);
+    setCurrentPageIndex(0);
+    setTokenForFetch(null);
+    lastAppendedKeyRef.current = null;
+    setExpandedRows(new Set());
   };
 
   return (
@@ -385,6 +448,33 @@ export const ListCareRecipientTable = () => {
                   ))}
                 </TableBody>
               </Table>
+              <div className="flex items-center justify-between mt-4">
+                <div className="text-sm text-gray-600">
+                  ページ {currentPageIndex + 1}
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={goPrev}
+                    disabled={fetching || currentPageIndex === 0}
+                  >
+                    前へ
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={goNext}
+                    disabled={
+                      fetching ||
+                      !pages[currentPageIndex] ||
+                      !pages[currentPageIndex].nextToken
+                    }
+                  >
+                    次へ
+                  </Button>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
