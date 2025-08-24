@@ -25,6 +25,10 @@ declare module "sst" {
       "type": "sst.aws.Nextjs"
       "url": string
     }
+    "StaffTable": {
+      "name": string
+      "type": "sst.aws.Dynamo"
+    }
     "WebClient": {
       "id": string
       "secret": string

@@ -2,7 +2,7 @@ export default {
     "scalars": [
         1,
         5,
-        7
+        9
     ],
     "types": {
         "CareRecipient": {
@@ -126,6 +126,27 @@ export default {
                     ]
                 }
             ],
+            "addStaff": [
+                6,
+                {
+                    "address": [
+                        1,
+                        "String!"
+                    ],
+                    "name": [
+                        1,
+                        "String!"
+                    ],
+                    "qualification": [
+                        1,
+                        "String!"
+                    ],
+                    "staffId": [
+                        1,
+                        "String!"
+                    ]
+                }
+            ],
             "__typename": [
                 1
             ]
@@ -145,8 +166,19 @@ export default {
                     ]
                 }
             ],
+            "listStaff": [
+                7,
+                {
+                    "limit": [
+                        5
+                    ],
+                    "nextToken": [
+                        1
+                    ]
+                }
+            ],
             "user": [
-                6,
+                8,
                 {
                     "userId": [
                         1,
@@ -159,6 +191,43 @@ export default {
             ]
         },
         "Int": {},
+        "Staff": {
+            "address": [
+                1
+            ],
+            "createdAt": [
+                1
+            ],
+            "id": [
+                1
+            ],
+            "name": [
+                1
+            ],
+            "qualification": [
+                1
+            ],
+            "staffId": [
+                1
+            ],
+            "updatedAt": [
+                1
+            ],
+            "__typename": [
+                1
+            ]
+        },
+        "StaffPage": {
+            "items": [
+                6
+            ],
+            "nextToken": [
+                1
+            ],
+            "__typename": [
+                1
+            ]
+        },
         "User": {
             "noteId": [
                 1

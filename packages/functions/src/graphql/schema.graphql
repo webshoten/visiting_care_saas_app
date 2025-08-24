@@ -24,12 +24,29 @@ type CareRecipientPage {
 
 type Mutation {
   addCareRecipient(address: String, allergies: String, birthDate: String!, bloodType: String!, email: String, firstName: String!, firstNameKana: String!, gender: String!, lastName: String!, lastNameKana: String!, medicalHistory: String, medications: String, notes: String, phone: String!): CareRecipient
+  addStaff(address: String!, name: String!, qualification: String!, staffId: String!): Staff
 }
 
 type Query {
   hello: String
   listCareRecipients(limit: Int, nextToken: String): CareRecipientPage
+  listStaff(limit: Int, nextToken: String): StaffPage
   user(userId: String!): User
+}
+
+type Staff {
+  address: String
+  createdAt: String
+  id: String
+  name: String
+  qualification: String
+  staffId: String
+  updatedAt: String
+}
+
+type StaffPage {
+  items: [Staff!]
+  nextToken: String
 }
 
 type User {

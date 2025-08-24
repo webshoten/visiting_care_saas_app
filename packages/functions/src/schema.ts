@@ -5,11 +5,14 @@ import { User } from "@visiting_app/core/user";
 import { CareRecipient } from "@visiting_app/core/care-recipient";
 import { defineUserTypes } from "./types/user";
 import { defineCareRecipientTypes } from "./types/care-recipient";
+import { Staff } from "@visiting_app/core/staff";
+import { defineStaffTypes } from "./types/staff";
 
 // Pothos Builderの作成
 export const builder = new SchemaBuilder({});
 const userTypes = defineUserTypes(builder);
 const careRecipientTypes = defineCareRecipientTypes(builder);
+const staffTypes = defineStaffTypes(builder);
 
 // Query型の定義
 builder.queryType({
@@ -38,6 +41,19 @@ builder.queryType({
       },
       resolve: async (_, { limit, nextToken }) => {
         return await CareRecipient.listCareRecipients(docClient, {
+          limit: limit ?? undefined,
+          nextToken: nextToken ?? undefined,
+        });
+      },
+    }),
+    listStaff: t.field({
+      type: staffTypes.GraphQLStaffPageType,
+      args: {
+        limit: t.arg.int({ required: false }),
+        nextToken: t.arg.string({ required: false }),
+      },
+      resolve: async (_, { limit, nextToken }) => {
+        return await Staff.listStaff(docClient, {
           limit: limit ?? undefined,
           nextToken: nextToken ?? undefined,
         });
@@ -83,6 +99,23 @@ builder.mutationType({
           medicalHistory: args.medicalHistory ?? undefined,
           medications: args.medications ?? undefined,
           notes: args.notes ?? undefined,
+        });
+      },
+    }),
+    addStaff: t.field({
+      type: staffTypes.GraphQLStaffType,
+      args: {
+        name: t.arg.string({ required: true }),
+        staffId: t.arg.string({ required: true }),
+        address: t.arg.string({ required: true }),
+        qualification: t.arg.string({ required: true }),
+      },
+      resolve: async (_, args) => {
+        return await Staff.addStaff(docClient, {
+          name: args.name,
+          staffId: args.staffId,
+          address: args.address,
+          qualification: args.qualification,
         });
       },
     }),

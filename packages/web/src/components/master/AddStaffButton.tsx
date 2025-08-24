@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -46,11 +45,36 @@ export function AddStaffButton({
     setForm((f) => ({ ...f, [key]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  type AddStaffInput = Pick<
+    StaffFormData,
+    'name' | 'staffId' | 'address' | 'qualification'
+  >;
+  type StaffCreated = AddStaffInput & {
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+
+  // TODO: サーバー実装後にGraphQL Mutationへ置き換え
+  const executeAddStaff = async (
+    input: AddStaffInput,
+  ): Promise<StaffCreated> => {
+    const now = new Date().toISOString();
+    const id = `staff_${Date.now()}`;
+    return { ...input, id, createdAt: now, updatedAt: now };
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.staffId || !form.address || !form.qualification)
       return;
-    setForm((prev) => ({ ...prev, addId: uuidv4() }));
+    const created = await executeAddStaff({
+      name: form.name,
+      staffId: form.staffId,
+      address: form.address,
+      qualification: form.qualification,
+    });
+    setForm((prev) => ({ ...prev, addId: created.id }));
     setOpen(false);
   };
 
@@ -58,11 +82,12 @@ export function AddStaffButton({
     if (open) setForm(initialForm);
   }, [open]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: submit is intentionally triggered only when addId changes
   useEffect(() => {
     if (form.addId != null) {
       onSubmit(form);
     }
-  }, [form, onSubmit]);
+  }, [form.addId]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

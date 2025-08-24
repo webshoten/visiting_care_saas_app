@@ -37,14 +37,33 @@ export interface CareRecipientPage {
 
 export interface Mutation {
     addCareRecipient: (CareRecipient | null)
+    addStaff: (Staff | null)
     __typename: 'Mutation'
 }
 
 export interface Query {
     hello: (Scalars['String'] | null)
     listCareRecipients: (CareRecipientPage | null)
+    listStaff: (StaffPage | null)
     user: (User | null)
     __typename: 'Query'
+}
+
+export interface Staff {
+    address: (Scalars['String'] | null)
+    createdAt: (Scalars['String'] | null)
+    id: (Scalars['String'] | null)
+    name: (Scalars['String'] | null)
+    qualification: (Scalars['String'] | null)
+    staffId: (Scalars['String'] | null)
+    updatedAt: (Scalars['String'] | null)
+    __typename: 'Staff'
+}
+
+export interface StaffPage {
+    items: (Staff[] | null)
+    nextToken: (Scalars['String'] | null)
+    __typename: 'StaffPage'
 }
 
 export interface User {
@@ -84,6 +103,7 @@ export interface CareRecipientPageGenqlSelection{
 
 export interface MutationGenqlSelection{
     addCareRecipient?: (CareRecipientGenqlSelection & { __args: {address?: (Scalars['String'] | null), allergies?: (Scalars['String'] | null), birthDate: Scalars['String'], bloodType: Scalars['String'], email?: (Scalars['String'] | null), firstName: Scalars['String'], firstNameKana: Scalars['String'], gender: Scalars['String'], lastName: Scalars['String'], lastNameKana: Scalars['String'], medicalHistory?: (Scalars['String'] | null), medications?: (Scalars['String'] | null), notes?: (Scalars['String'] | null), phone: Scalars['String']} })
+    addStaff?: (StaffGenqlSelection & { __args: {address: Scalars['String'], name: Scalars['String'], qualification: Scalars['String'], staffId: Scalars['String']} })
     __typename?: boolean | number
     __scalar?: boolean | number
 }
@@ -91,7 +111,27 @@ export interface MutationGenqlSelection{
 export interface QueryGenqlSelection{
     hello?: boolean | number
     listCareRecipients?: (CareRecipientPageGenqlSelection & { __args?: {limit?: (Scalars['Int'] | null), nextToken?: (Scalars['String'] | null)} })
+    listStaff?: (StaffPageGenqlSelection & { __args?: {limit?: (Scalars['Int'] | null), nextToken?: (Scalars['String'] | null)} })
     user?: (UserGenqlSelection & { __args: {userId: Scalars['String']} })
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+export interface StaffGenqlSelection{
+    address?: boolean | number
+    createdAt?: boolean | number
+    id?: boolean | number
+    name?: boolean | number
+    qualification?: boolean | number
+    staffId?: boolean | number
+    updatedAt?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+export interface StaffPageGenqlSelection{
+    items?: StaffGenqlSelection
+    nextToken?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
@@ -133,6 +173,22 @@ export interface UserGenqlSelection{
     export const isQuery = (obj?: { __typename?: any } | null): obj is Query => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isQuery"')
       return Query_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const Staff_possibleTypes: string[] = ['Staff']
+    export const isStaff = (obj?: { __typename?: any } | null): obj is Staff => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isStaff"')
+      return Staff_possibleTypes.includes(obj.__typename)
+    }
+    
+
+
+    const StaffPage_possibleTypes: string[] = ['StaffPage']
+    export const isStaffPage = (obj?: { __typename?: any } | null): obj is StaffPage => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isStaffPage"')
+      return StaffPage_possibleTypes.includes(obj.__typename)
     }
     
 

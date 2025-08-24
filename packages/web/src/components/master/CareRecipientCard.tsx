@@ -11,7 +11,7 @@ import {
   Trash2,
   User,
 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useClient } from 'urql';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -39,8 +39,6 @@ export interface TableList {
   phone: string;
   email: string;
   address: string;
-  emergencyContactName: string;
-  emergencyContactPhone: string;
   allergies: string;
   medicalHistory: string;
   medications: string;
@@ -77,6 +75,7 @@ export const CareRecipientCard = () => {
     medications: string | null | undefined;
   };
 
+  const ctx = useMemo(() => ({ additionalTypenames: ['CareRecipient'] }), []);
   const [{ data, fetching }] = useTypedQuery({
     query: {
       listCareRecipients: {
@@ -98,6 +97,7 @@ export const CareRecipientCard = () => {
       },
     },
     requestPolicy: 'cache-and-network',
+    context: ctx,
   });
 
   useEffect(() => {
