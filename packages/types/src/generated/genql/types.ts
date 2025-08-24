@@ -24,15 +24,6 @@ export default {
             "email": [
                 1
             ],
-            "emergencyContactName": [
-                1
-            ],
-            "emergencyContactPhone": [
-                1
-            ],
-            "emergencyContactRelation": [
-                1
-            ],
             "firstName": [
                 1
             ],
@@ -98,15 +89,6 @@ export default {
                         "String!"
                     ],
                     "email": [
-                        1
-                    ],
-                    "emergencyContactName": [
-                        1
-                    ],
-                    "emergencyContactPhone": [
-                        1
-                    ],
-                    "emergencyContactRelation": [
                         1
                     ],
                     "firstName": [

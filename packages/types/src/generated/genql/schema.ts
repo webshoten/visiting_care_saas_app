@@ -16,9 +16,6 @@ export interface CareRecipient {
     bloodType: (Scalars['String'] | null)
     createdAt: (Scalars['String'] | null)
     email: (Scalars['String'] | null)
-    emergencyContactName: (Scalars['String'] | null)
-    emergencyContactPhone: (Scalars['String'] | null)
-    emergencyContactRelation: (Scalars['String'] | null)
     firstName: (Scalars['String'] | null)
     firstNameKana: (Scalars['String'] | null)
     gender: (Scalars['String'] | null)
@@ -64,9 +61,6 @@ export interface CareRecipientGenqlSelection{
     bloodType?: boolean | number
     createdAt?: boolean | number
     email?: boolean | number
-    emergencyContactName?: boolean | number
-    emergencyContactPhone?: boolean | number
-    emergencyContactRelation?: boolean | number
     firstName?: boolean | number
     firstNameKana?: boolean | number
     gender?: boolean | number
@@ -89,7 +83,7 @@ export interface CareRecipientPageGenqlSelection{
 }
 
 export interface MutationGenqlSelection{
-    addCareRecipient?: (CareRecipientGenqlSelection & { __args: {address?: (Scalars['String'] | null), allergies?: (Scalars['String'] | null), birthDate: Scalars['String'], bloodType: Scalars['String'], email?: (Scalars['String'] | null), emergencyContactName?: (Scalars['String'] | null), emergencyContactPhone?: (Scalars['String'] | null), emergencyContactRelation?: (Scalars['String'] | null), firstName: Scalars['String'], firstNameKana: Scalars['String'], gender: Scalars['String'], lastName: Scalars['String'], lastNameKana: Scalars['String'], medicalHistory?: (Scalars['String'] | null), medications?: (Scalars['String'] | null), notes?: (Scalars['String'] | null), phone: Scalars['String']} })
+    addCareRecipient?: (CareRecipientGenqlSelection & { __args: {address?: (Scalars['String'] | null), allergies?: (Scalars['String'] | null), birthDate: Scalars['String'], bloodType: Scalars['String'], email?: (Scalars['String'] | null), firstName: Scalars['String'], firstNameKana: Scalars['String'], gender: Scalars['String'], lastName: Scalars['String'], lastNameKana: Scalars['String'], medicalHistory?: (Scalars['String'] | null), medications?: (Scalars['String'] | null), notes?: (Scalars['String'] | null), phone: Scalars['String']} })
     __typename?: boolean | number
     __scalar?: boolean | number
 }

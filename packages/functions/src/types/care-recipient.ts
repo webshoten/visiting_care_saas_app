@@ -6,6 +6,7 @@ import type {
 // GraphQL CareRecipient型の定義
 export function defineCareRecipientTypes(
     builder: PothosSchemaTypes.SchemaBuilder<
+        // biome-ignore lint/complexity/noBannedTypes: Pothos default generic uses {}
         PothosSchemaTypes.ExtendDefaultTypes<{}>
     >,
 ) {
@@ -24,18 +25,6 @@ export function defineCareRecipientTypes(
             phone: t.exposeString("phone"),
             email: t.exposeString("email", { nullable: true }),
             address: t.exposeString("address", { nullable: true }),
-            emergencyContactName: t.exposeString("emergencyContactName", {
-                nullable: true,
-            }),
-            emergencyContactRelation: t.exposeString(
-                "emergencyContactRelation",
-                {
-                    nullable: true,
-                },
-            ),
-            emergencyContactPhone: t.exposeString("emergencyContactPhone", {
-                nullable: true,
-            }),
             allergies: t.exposeString("allergies", { nullable: true }),
             medicalHistory: t.exposeString("medicalHistory", {
                 nullable: true,

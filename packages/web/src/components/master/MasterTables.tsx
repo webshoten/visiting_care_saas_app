@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CareRecipientCard } from './CareRecipientCard';
+import { StaffCard } from './StaffCard';
 
 export const MasterTables = () => {
   const [activeTab, setActiveTab] = useState<
@@ -14,7 +14,7 @@ export const MasterTables = () => {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold text-gray-900">マスター管理</h2>
         <div role="tablist" className="flex gap-2">
-          {['ケア対象者', 'スタッフ', 'サービス', '事業所'].map((label) => (
+          {['ケア対象者', 'スタッフ'].map((label) => (
             <button
               key={label}
               role="tab"
@@ -33,20 +33,8 @@ export const MasterTables = () => {
         </div>
       </div>
 
-      {activeTab === 'ケア対象者' ? (
-        <CareRecipientCard />
-      ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>{activeTab}（準備中）</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm text-gray-600">
-              このマスターは現在準備中です。
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {activeTab === 'ケア対象者' && <CareRecipientCard />}
+      {activeTab === 'スタッフ' && <StaffCard />}
     </div>
   );
 };

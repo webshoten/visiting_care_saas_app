@@ -72,8 +72,6 @@ export const CareRecipientCard = () => {
     phone: string | null | undefined;
     email: string | null | undefined;
     address: string | null | undefined;
-    emergencyContactName: string | null | undefined;
-    emergencyContactPhone: string | null | undefined;
     allergies: string | null | undefined;
     medicalHistory: string | null | undefined;
     medications: string | null | undefined;
@@ -92,8 +90,6 @@ export const CareRecipientCard = () => {
           phone: true,
           email: true,
           address: true,
-          emergencyContactName: true,
-          emergencyContactPhone: true,
           allergies: true,
           medicalHistory: true,
           medications: true,
@@ -101,7 +97,7 @@ export const CareRecipientCard = () => {
         nextToken: true,
       },
     },
-    requestPolicy: 'network-only',
+    requestPolicy: 'cache-and-network',
   });
 
   useEffect(() => {
@@ -136,8 +132,6 @@ export const CareRecipientCard = () => {
           phone: it.phone ?? '',
           email: it.email ?? '',
           address: it.address ?? '',
-          emergencyContactName: it.emergencyContactName ?? '',
-          emergencyContactPhone: it.emergencyContactPhone ?? '',
           allergies: it.allergies ?? '',
           medicalHistory: it.medicalHistory ?? '',
           medications: it.medications ?? '',
@@ -198,10 +192,6 @@ export const CareRecipientCard = () => {
             gender: formData.gender,
             birthDate: formData.birthDate,
             email: formData.email ?? undefined,
-            emergencyContactName: formData.emergencyContactName ?? undefined,
-            emergencyContactRelation:
-              formData.emergencyContactRelation ?? undefined,
-            emergencyContactPhone: formData.emergencyContactPhone ?? undefined,
             medicalHistory: formData.medicalHistory ?? undefined,
             medications: formData.medications ?? undefined,
             phone: formData.phone,
@@ -355,21 +345,7 @@ export const CareRecipientCard = () => {
                                   </div>
                                 </div>
 
-                                {/* 緊急連絡先 */}
-                                <div className="space-y-2">
-                                  <h4 className="font-semibold text-sm text-gray-700">
-                                    緊急連絡先
-                                  </h4>
-                                  <div className="space-y-1 text-sm">
-                                    <p className="font-medium">
-                                      {tableList[id].emergencyContactName}
-                                    </p>
-                                    <p className="flex items-center gap-1 text-gray-600">
-                                      <Phone className="h-3 w-3" />
-                                      {tableList[id].emergencyContactPhone}
-                                    </p>
-                                  </div>
-                                </div>
+                                {/* 緊急連絡先（PoCでは非表示） */}
 
                                 {/* 医療情報 */}
                                 <div className="space-y-2">

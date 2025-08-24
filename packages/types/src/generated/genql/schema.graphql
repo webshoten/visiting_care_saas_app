@@ -5,9 +5,6 @@ type CareRecipient {
   bloodType: String
   createdAt: String
   email: String
-  emergencyContactName: String
-  emergencyContactPhone: String
-  emergencyContactRelation: String
   firstName: String
   firstNameKana: String
   gender: String
@@ -26,7 +23,7 @@ type CareRecipientPage {
 }
 
 type Mutation {
-  addCareRecipient(address: String, allergies: String, birthDate: String!, bloodType: String!, email: String, emergencyContactName: String, emergencyContactPhone: String, emergencyContactRelation: String, firstName: String!, firstNameKana: String!, gender: String!, lastName: String!, lastNameKana: String!, medicalHistory: String, medications: String, notes: String, phone: String!): CareRecipient
+  addCareRecipient(address: String, allergies: String, birthDate: String!, bloodType: String!, email: String, firstName: String!, firstNameKana: String!, gender: String!, lastName: String!, lastNameKana: String!, medicalHistory: String, medications: String, notes: String, phone: String!): CareRecipient
 }
 
 type Query {

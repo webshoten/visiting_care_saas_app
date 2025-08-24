@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  AlertTriangleIcon,
-  CalendarIcon,
-  HeartIcon,
-  PhoneIcon,
-  PlusIcon,
-  UserIcon,
-} from 'lucide-react';
+import { HeartIcon, PhoneIcon, PlusIcon, UserIcon } from 'lucide-react';
 import type React from 'react';
 import { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -43,9 +36,6 @@ export interface CareRecipientFormData {
   phone: string;
   email: string;
   address: string;
-  emergencyContactName: string;
-  emergencyContactRelation: string;
-  emergencyContactPhone: string;
   allergies: string;
   medications: string;
   medicalHistory: string;
@@ -68,11 +58,6 @@ const initialFormData = {
   phone: '',
   email: '',
   address: '',
-
-  // 緊急連絡先
-  emergencyContactName: '',
-  emergencyContactRelation: '',
-  emergencyContactPhone: '',
 
   // 医療情報
   allergies: '',
@@ -109,7 +94,7 @@ export const AddCareRecipientButton = ({
     }
   }, [open]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: submit is intentionally triggered when addId is set
   useEffect(() => {
     if (formData.addId != null) {
       console.log('患者情報:', formData);
@@ -294,68 +279,6 @@ export const AddCareRecipientButton = ({
                 onChange={(e) => handleInputChange('address', e.target.value)}
                 placeholder="〒123-4567 東京都渋谷区..."
               />
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* 緊急連絡先セクション */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-4">
-              <AlertTriangleIcon className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold">緊急連絡先</h3>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="emergencyContactName">氏名 *</Label>
-                <Input
-                  id="emergencyContactName"
-                  value={formData.emergencyContactName}
-                  onChange={(e) =>
-                    handleInputChange('emergencyContactName', e.target.value)
-                  }
-                  placeholder="緊急連絡先の氏名"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="emergencyContactRelation">続柄 *</Label>
-                <Select
-                  value={formData.emergencyContactRelation}
-                  onValueChange={(value) =>
-                    handleInputChange('emergencyContactRelation', value)
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="選択してください" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="spouse">配偶者</SelectItem>
-                    <SelectItem value="parent">親</SelectItem>
-                    <SelectItem value="child">子</SelectItem>
-                    <SelectItem value="sibling">兄弟姉妹</SelectItem>
-                    <SelectItem value="relative">親族</SelectItem>
-                    <SelectItem value="friend">友人</SelectItem>
-                    <SelectItem value="other">その他</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="emergencyContactPhone">電話番号 *</Label>
-                <Input
-                  id="emergencyContactPhone"
-                  type="tel"
-                  value={formData.emergencyContactPhone}
-                  onChange={(e) =>
-                    handleInputChange('emergencyContactPhone', e.target.value)
-                  }
-                  placeholder="090-1234-5678"
-                  required
-                />
-              </div>
             </div>
           </div>
 

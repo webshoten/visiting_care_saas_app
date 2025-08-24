@@ -1,7 +1,6 @@
 import {
     type DynamoDBDocumentClient,
     PutCommand,
-    QueryCommand,
     ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { Resource } from "sst";
@@ -18,9 +17,6 @@ export interface CareRecipientType {
     phone: string;
     email?: string;
     address?: string;
-    emergencyContactName?: string;
-    emergencyContactRelation?: string;
-    emergencyContactPhone?: string;
     allergies?: string;
     medicalHistory?: string;
     medications?: string;
@@ -86,9 +82,6 @@ export namespace CareRecipient {
                     phone: item.phone,
                     email: item.email,
                     address: item.address,
-                    emergencyContactName: item.emergencyContactName,
-                    emergencyContactRelation: item.emergencyContactRelation,
-                    emergencyContactPhone: item.emergencyContactPhone,
                     allergies: item.allergies,
                     medicalHistory: item.medicalHistory,
                     medications: item.medications,
@@ -97,7 +90,7 @@ export namespace CareRecipient {
                     updatedAt: item.updatedAt,
                 };
             });
-        } catch (error) {
+        } catch {
             return [];
         }
     }
@@ -133,9 +126,6 @@ export namespace CareRecipient {
                 phone: item.phone,
                 email: item.email,
                 address: item.address,
-                emergencyContactName: item.emergencyContactName,
-                emergencyContactRelation: item.emergencyContactRelation,
-                emergencyContactPhone: item.emergencyContactPhone,
                 allergies: item.allergies,
                 medicalHistory: item.medicalHistory,
                 medications: item.medications,

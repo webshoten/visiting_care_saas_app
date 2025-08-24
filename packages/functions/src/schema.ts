@@ -1,4 +1,4 @@
-// biome-ignore assist/source/organizeImports: <explanation>
+// biome-ignore assist/source/organizeImports: keep import order for clarity
 import SchemaBuilder from "@pothos/core";
 import { docClient } from "@visiting_app/core/dynamo-db";
 import { User } from "@visiting_app/core/user";
@@ -62,9 +62,6 @@ builder.mutationType({
         phone: t.arg.string({ required: true }),
         email: t.arg.string({ required: false }),
         address: t.arg.string({ required: false }),
-        emergencyContactName: t.arg.string({ required: false }),
-        emergencyContactRelation: t.arg.string({ required: false }),
-        emergencyContactPhone: t.arg.string({ required: false }),
         allergies: t.arg.string({ required: false }),
         medicalHistory: t.arg.string({ required: false }),
         medications: t.arg.string({ required: false }),
@@ -82,12 +79,6 @@ builder.mutationType({
           phone: args.phone,
           email: args.email ?? undefined,
           address: args.address ?? undefined,
-          emergencyContactName: args.emergencyContactName ??
-            undefined,
-          emergencyContactRelation: args.emergencyContactRelation ??
-            undefined,
-          emergencyContactPhone: args.emergencyContactPhone ??
-            undefined,
           allergies: args.allergies ?? undefined,
           medicalHistory: args.medicalHistory ?? undefined,
           medications: args.medications ?? undefined,
