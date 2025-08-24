@@ -1,7 +1,7 @@
 'use client';
 
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { ListCareRecipientTable } from '@/components/master/ListCareRecipientTable';
+import { MasterTables } from '@/components/master/MasterTables';
 
 export default function DashboardPage() {
   return (
@@ -11,7 +11,7 @@ export default function DashboardPage() {
           <div className="max-w-4xl mx-auto ">
             <h1 className="text-3xl font-bold text-gray-900 mb-8">マスター</h1>
             <div className="lg:col-span-2 bg-white rounded-lg shadow-sm p-6">
-              <ListCareRecipientTable />
+              <MasterTables />
             </div>
           </div>
         </div>

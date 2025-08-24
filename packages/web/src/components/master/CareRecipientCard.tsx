@@ -46,10 +46,10 @@ export interface TableList {
   medications: string;
 }
 
-export const ListCareRecipientTable = () => {
+export const CareRecipientCard = () => {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [tableList, setTableList] = useState<Record<string, TableList>>({});
-  const PAGE_SIZE = 5; // 1カ所で件数変更可能
+  const PAGE_SIZE = 5;
 
   const [pages, setPages] = useState<
     { items: ApiCareRecipient[]; nextToken: string | null }[]
@@ -101,22 +101,11 @@ export const ListCareRecipientTable = () => {
         nextToken: true,
       },
     },
-    requestPolicy: 'cache-and-network',
+    requestPolicy: 'network-only',
   });
 
-  // デバッグ: レンダリング状況
-  console.log('render', {
-    pageIndex: currentPageIndex,
-    pages: pages.length,
-    tokenForFetch,
-    fetching,
-  });
-
-  // フェッチ完了時にページを追加（同一トークンの二重追加をRefで即時ガード）
   useEffect(() => {
     if (fetching || !data) return;
-
-    console.log('getTokenKey', getTokenKey(tokenForFetch));
 
     const raw = (data.listCareRecipients?.items ?? []) as ApiCareRecipient[];
     const items = (raw.filter(Boolean) as ApiCareRecipient[]) ?? [];
@@ -125,11 +114,6 @@ export const ListCareRecipientTable = () => {
     if (lastAppendedKeyRef.current === key) return;
     setPages((prevPages) => {
       const newPages = [...prevPages, { items, nextToken: next }];
-      console.log('append', {
-        key,
-        appendedLength: newPages.length,
-        nextToken: next,
-      });
       setCurrentPageIndex(newPages.length - 1);
       lastAppendedKeyRef.current = key;
       return newPages;
@@ -169,35 +153,19 @@ export const ListCareRecipientTable = () => {
   const goPrev = () => {
     if (fetching) return;
     if (currentPageIndex === 0) return;
-    console.log('prev', { pageIndex: currentPageIndex, pages: pages.length });
     setCurrentPageIndex((i) => i - 1);
   };
 
   const goNext = () => {
     if (fetching) return;
-    // 既取得ページがある場合はインデックスを進める
     if (currentPageIndex < pages.length - 1) {
-      console.log('next (cached)', {
-        pageIndex: currentPageIndex,
-        pages: pages.length,
-      });
       setCurrentPageIndex((i) => i + 1);
       return;
     }
-    // 未取得 → 現在ページのnextTokenで取得
     const token = pages[currentPageIndex]?.nextToken ?? null;
     if (!token) return;
-    console.log('next (fetch)', {
-      pageIndex: currentPageIndex,
-      pages: pages.length,
-      token,
-    });
     setTokenForFetch(token);
   };
-
-  // urql + GenQL bridge mutation
-
-  // AddCareRecipient の入力は handleSubmit 内で直接指定
 
   const urqlClient = useClient();
 
@@ -251,7 +219,7 @@ export const ListCareRecipientTable = () => {
     ).data?.addCareRecipient;
     if (!created?.id) return;
 
-    // 追加後は1ページ目から再取得（ページサイズ制約の整合性維持）
+    // 1ページ目から再取得
     setPages([]);
     setCurrentPageIndex(0);
     setTokenForFetch(null);
@@ -260,13 +228,13 @@ export const ListCareRecipientTable = () => {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold text-gray-900">ケア対象者</h2>
-      </div>
-
+    <>
       {Object.keys(tableList).length === 0 ? (
         <Card>
+          <CardHeader>
+            <CardTitle>ケア対象者</CardTitle>
+            <AddCareRecipientButton onSubmit={handleSubmit} />
+          </CardHeader>
           <CardContent className="py-12 text-center">
             <p className="text-gray-500 text-lg">
               まだケア対象者が登録されていません
@@ -477,6 +445,6 @@ export const ListCareRecipientTable = () => {
           </CardContent>
         </Card>
       )}
-    </div>
+    </>
   );
 };
