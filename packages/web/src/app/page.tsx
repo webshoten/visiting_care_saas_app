@@ -1,51 +1,26 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useGenQL } from "@/contexts/GenQLContext";
-import { useToken } from "@/contexts/TokenContext";
+import { useState } from 'react';
+import { useToken } from '@/contexts/TokenContext';
+import { useTypedQuery } from '@/lib/genql-urql-bridge';
 
 export default function Home() {
   const { isAuthenticated, loading } = useToken();
-  const { client, loading: genqlLoading } = useGenQL();
   const [copySuccess, setCopySuccess] = useState(false);
-  const [data, setData] = useState<any>(null);
-  const [fetching, setFetching] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-
-  // userクエリを実行
-  useEffect(() => {
-    if (!isAuthenticated || !client || genqlLoading) {
-      setData(null);
-      setError(null);
-      return;
-    }
-
-    const fetchUser = async () => {
-      setFetching(true);
-      setError(null);
-
-      try {
-        const result = await client.query({
-          user: {
-            __args: {
-              userId: "1",
-            },
-            userId: true,
-            noteId: true,
-            version: true,
-          },
-        });
-
-        setData(result);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error("Unknown error"));
-      } finally {
-        setFetching(false);
-      }
-    };
-
-    fetchUser();
-  }, [isAuthenticated, client, genqlLoading]);
+  const [{ data, fetching, error }] = useTypedQuery({
+    query: {
+      user: {
+        __args: {
+          userId: '1',
+        },
+        userId: true,
+        noteId: true,
+        version: true,
+      },
+    },
+    pause: !isAuthenticated,
+    requestPolicy: 'network-only',
+  });
 
   const handleCopyJson = async () => {
     if (!data) return;
@@ -55,7 +30,7 @@ export default function Home() {
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     } catch (error) {
-      console.error("コピーに失敗しました:", error);
+      console.error('コピーに失敗しました:', error);
     }
   };
 
@@ -79,16 +54,16 @@ export default function Home() {
             <div
               className={`p-4 border rounded-md ${
                 isAuthenticated
-                  ? "bg-green-50 border-green-200"
-                  : "bg-yellow-50 border-yellow-200"
+                  ? 'bg-green-50 border-green-200'
+                  : 'bg-yellow-50 border-yellow-200'
               }`}
             >
               <p className="text-gray-900">
                 {loading
-                  ? "認証状態を確認中..."
+                  ? '認証状態を確認中...'
                   : isAuthenticated
-                    ? "✅ 認証済み"
-                    : "⚠️ 未認証"}
+                    ? '✅ 認証済み'
+                    : '⚠️ 未認証'}
               </p>
             </div>
           </div>
@@ -105,7 +80,7 @@ export default function Home() {
                   onClick={handleCopyJson}
                   className="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
                 >
-                  {copySuccess ? "✅ コピーしました！" : "📋 JSONをコピー"}
+                  {copySuccess ? '✅ コピーしました！' : '📋 JSONをコピー'}
                 </button>
               )}
             </div>
@@ -134,8 +109,8 @@ export default function Home() {
               <div className="bg-gray-100 p-4 rounded-md">
                 <p className="text-sm text-gray-700">
                   {!isAuthenticated
-                    ? "GraphQLを呼び出すには先に認証してください"
-                    : "認証後にGraphQLクエリが自動実行されます"}
+                    ? 'GraphQLを呼び出すには先に認証してください'
+                    : '認証後にGraphQLクエリが自動実行されます'}
                 </p>
               </div>
             )}

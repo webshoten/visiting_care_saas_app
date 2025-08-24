@@ -101,7 +101,7 @@ export const ListCareRecipientTable = () => {
         nextToken: true,
       },
     },
-    requestPolicy: 'network-only',
+    requestPolicy: 'cache-and-network',
   });
 
   // デバッグ: レンダリング状況
